@@ -1,0 +1,1258 @@
+<!doctype html>
+<html lang="en" data-theme="dark"><head><meta charset="utf-8"><title>RI Gradient Studio — Luminous Atelier</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<style>:root{
+ --bg:#0f0e0d;--surf:rgba(25,22,20,.84);--card:rgba(36,32,29,.72);--card2:rgba(48,43,39,.84);--stage:#090807;
+ --ink:#f4efe7;--mute:#a69e92;--line:rgba(255,246,232,.10);--line2:rgba(255,246,232,.19);--inner:inset 0 1px 0 rgba(255,248,238,.07);
+ --acc:#e5a964;--onacc:#14110e;--g1:#e5a964;--g2:#6b8cff;--g3:#d86c9a;
+ --f-disp:"Instrument Serif","Georgia","Times New Roman",serif;
+ --f-sans:"Plus Jakarta Sans","Inter",system-ui,-apple-system,sans-serif;
+ --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+ --r-xl:18px;--r-lg:12px;--r-md:9px;--sh-panel:0 20px 50px rgba(0,0,0,.45),var(--inner);
+ color-scheme:dark;box-sizing:border-box;
+}
+:root[data-theme="light"]{
+ --bg:#f3efe6;--surf:rgba(252,249,243,.90);--card:rgba(239,233,222,.78);--card2:rgba(229,221,208,.90);--stage:#e7e0d2;
+ --ink:#1a1714;--mute:#5f584f;--line:rgba(26,23,20,.10);--line2:rgba(26,23,20,.19);--inner:inset 0 1px 0 rgba(255,255,255,.85);
+ --acc:#8f4e18;--onacc:#fdfaf4;
+ --sh-panel:0 16px 40px rgba(38,29,18,.12),var(--inner);
+ color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%;margin:0;padding:0}
+body{
+ display:flex;flex-direction:column;min-height:100vh;overflow-y:auto;overflow-x:hidden;
+ background:radial-gradient(ellipse 90% 70% at 62% 10%,color-mix(in srgb,var(--g1) 11%,transparent),transparent 70%),var(--bg);
+ color:var(--ink);font:400 13.5px/1.45 var(--f-sans);
+ padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+ transition:background-color 220ms ease-out,color 200ms ease-out;
+}
+/* Subtle panel grain overlay via inline SVG URI */
+body::before{
+ content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.03;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+svg.ic{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.app-shell{position:relative;z-index:1;flex:1;min-height:0;display:flex;flex-direction:column;padding:10px 12px 12px;gap:10px}
+
+/* Header */
+header{
+ flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;
+ padding:8px 14px;border-radius:var(--r-xl);
+ background:var(--surf);backdrop-filter:blur(16px);border:1px solid var(--line);box-shadow:var(--sh-panel);
+}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.monogram{
+ position:relative;width:32px;height:32px;border-radius:10px;flex:none;
+ display:grid;place-items:center;border:1px solid var(--line2);background:var(--card);overflow:hidden;
+}
+.monogram-orb{
+ position:absolute;inset:-4px;opacity:.55;filter:blur(7px);
+ background:linear-gradient(135deg,var(--g1),var(--g2),var(--g3));
+ transition:background 250ms ease-out;
+}
+.monogram span{position:relative;font-family:var(--f-disp);font-size:16px;font-style:italic;letter-spacing:-.02em;color:var(--ink)}
+.brand h1{margin:0;display:flex;align-items:center;gap:8px;font-family:var(--f-disp);font-size:22px;font-weight:400;letter-spacing:-.01em;line-height:1.1;white-space:nowrap}
+.pill{
+ font:500 10.5px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;
+ padding:4px 8px;border-radius:999px;border:1px solid var(--line2);
+ background:color-mix(in srgb,var(--acc) 14%,transparent);color:var(--ink);
+}
+.hright{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
+.hright select{width:auto;min-width:136px;padding:6px 28px 6px 10px;min-height:34px}
+.kbd-hint{
+ display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:999px;
+ border:1px solid var(--line);background:var(--card);color:var(--mute);font:500 11px var(--f-mono);
+}
+.kbd-hint b{color:var(--ink);font-weight:600}
+
+/* Inputs & Buttons */
+button,select,input[type=text],input[type=number]{
+ font:500 13px/1.3 var(--f-sans);color:var(--ink);background:var(--card);
+ border:1px solid var(--line);border-radius:var(--r-md);
+ transition:border-color 180ms ease-out,background-color 180ms ease-out,color 180ms ease-out,transform 140ms ease-out,box-shadow 180ms ease-out;
+}
+button{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 12px;cursor:pointer;min-height:34px}
+button:hover{border-color:var(--line2);background:var(--card2)}
+button:active{transform:translateY(1px)}
+button:disabled{opacity:.42;cursor:not-allowed;transform:none}
+button.pri{
+ position:relative;overflow:hidden;border-color:transparent;
+ background:var(--acc);color:var(--onacc);font-weight:600;
+ box-shadow:0 6px 20px color-mix(in srgb,var(--acc) 32%,transparent);
+}
+button.pri::after{
+ content:"";position:absolute;top:0;left:-120%;width:70%;height:100%;
+ background:linear-gradient(105deg,transparent,rgba(255,255,255,.32),transparent);
+ transform:skewX(-18deg);transition:left 480ms ease-out;pointer-events:none;
+}
+button.pri:hover::after{left:140%}
+button.on{border-color:var(--acc);color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,var(--card))}
+select,input[type=text],input[type=number]{width:100%;padding:8px 10px;min-height:36px}
+select{
+ appearance:none;-webkit-appearance:none;padding-right:30px;cursor:pointer;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23a69e92' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+ background-repeat:no-repeat;background-position:right 9px center;
+}
+select:hover,input:hover{border-color:var(--line2)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+[hidden]{display:none!important}
+
+/* Custom Range Sliders */
+input[type=range]{
+ -webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:999px;margin:6px 0;cursor:pointer;border:0;padding:0;min-height:0;
+ background:linear-gradient(90deg,var(--acc) 0%,var(--acc) var(--pct,50%),var(--line2) var(--pct,50%),var(--line2) 100%);
+}
+input[type=range]::-webkit-slider-thumb{
+ -webkit-appearance:none;width:17px;height:17px;border-radius:50%;
+ background:var(--ink);border:2.5px solid var(--acc);
+ box-shadow:0 2px 8px rgba(0,0,0,.45);transition:transform 150ms ease-out;
+}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.12)}
+input[type=range]::-moz-range-thumb{
+ width:17px;height:17px;border-radius:50%;background:var(--ink);border:2.5px solid var(--acc);
+ box-shadow:0 2px 8px rgba(0,0,0,.45);
+}
+
+/* Main Workspace Grid */
+.app{flex:1;min-height:0;display:grid;grid-template-columns:348px minmax(0,1fr);gap:12px}
+
+/* Floating Left Atelier Panel */
+aside{
+ position:relative;display:flex;flex-direction:column;min-height:0;border-radius:var(--r-xl);
+ background:var(--surf);backdrop-filter:blur(18px);border:1px solid var(--line);box-shadow:var(--sh-panel);
+ overflow:hidden;
+}
+.tabs{
+ position:relative;flex:none;display:grid;grid-template-columns:repeat(4,1fr);
+ margin:10px 10px 0;padding:3px;border-radius:11px;background:var(--card);border:1px solid var(--line);
+}
+.tab-pill{
+ position:absolute;top:3px;left:3px;bottom:3px;width:calc((100% - 6px) / 4);
+ border-radius:8px;background:var(--card2);border:1px solid var(--line2);
+ box-shadow:0 2px 8px rgba(0,0,0,.22);
+ transition:transform 200ms cubic-bezier(.22,1,.36,1);pointer-events:none;
+}
+.tabs button{
+ position:relative;z-index:1;border:0;background:transparent;padding:7px 8px;min-height:32px;
+ font:600 12.5px var(--f-sans);color:var(--mute);border-radius:8px;
+}
+.tabs button:hover{color:var(--ink);background:transparent}
+.tabs button[aria-selected="true"]{color:var(--ink)}
+.pane{flex:1;min-height:0;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+.grp{
+ display:grid;grid-template-columns:minmax(0,1fr);min-width:0;gap:11px;padding:12px;border-radius:var(--r-lg);
+ background:var(--card);border:1px solid var(--line);
+}
+.grp-head{
+ display:flex;align-items:center;gap:7px;font:600 10.5px/1 var(--f-mono);
+ letter-spacing:.09em;text-transform:uppercase;color:var(--mute);margin-bottom:2px;
+}
+label.fld{display:grid;grid-template-columns:minmax(0,1fr);min-width:0;gap:5px;font:600 10.5px/1.2 var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--mute)}
+label.fld select,label.fld input{min-width:0;max-width:100%}
+label.fld .f-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+label.fld b.val{font:600 11.5px var(--f-mono);color:var(--ink)}
+.hex-tools{display:inline-flex;align-items:center;gap:6px}
+.hex-tools input[type=color]{width:22px;height:20px;padding:0;border:1px solid var(--line2);border-radius:6px;background:none;cursor:pointer;min-height:20px}
+.hex-tools button{padding:2px 8px;min-height:22px;font:500 10.5px var(--f-mono)}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row label.fld{flex:1}
+
+/* Style Visual Card + Popover Gallery */
+.style-row{display:flex;gap:8px;align-items:stretch}
+.style-row select{flex:1;min-width:0}
+.style-card{
+ flex:1;justify-content:space-between;padding:4px 8px 4px 5px;min-height:38px;border-radius:var(--r-md);gap:7px;
+ background:var(--card2);border:1px solid var(--line2);text-align:left;
+}
+.style-card-l{display:flex;align-items:center;gap:7px;min-width:0}
+.style-card canvas{width:38px;height:28px;border-radius:5px;flex:none;border:1px solid var(--line);background:var(--stage)}
+.style-card-txt{display:grid;gap:1px;text-align:left}
+.style-card-txt strong{font:600 11.5px/1.1 var(--f-sans);color:var(--ink)}
+.style-card-txt span{font:500 9.5px/1 var(--f-mono);color:var(--mute)}
+.style-pop{
+ position:fixed;left:372px;top:76px;width:440px;max-width:calc(100vw - 32px);max-height:min(540px,calc(100vh - 110px));
+ z-index:40;display:flex;flex-direction:column;gap:10px;padding:12px;border-radius:var(--r-xl);
+ background:var(--surf);backdrop-filter:blur(22px);border:1px solid var(--line2);box-shadow:0 28px 70px rgba(0,0,0,.55),var(--inner);
+ animation:popIn 170ms ease-out;
+}
+.style-pop-head{display:flex;align-items:center;gap:8px}
+.style-pop-head input{flex:1}
+.style-grid{
+ overflow:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding-right:2px;
+}
+.st-item{
+ display:flex;flex-direction:column;gap:5px;padding:6px;border-radius:10px;text-align:left;
+ background:var(--card);border:1px solid var(--line);cursor:pointer;min-height:0;
+}
+.st-item:hover{border-color:var(--line2);background:var(--card2)}
+.st-item.active{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}
+.st-item canvas{width:100%;aspect-ratio:3/2;border-radius:6px;display:block;background:var(--stage)}
+.st-item span{font:500 11px/1.2 var(--f-sans);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+
+/* Center Stage Area */
+main{min-width:0;min-height:0;display:flex;flex-direction:column;gap:10px}
+.stage{
+ position:relative;flex:1 1 0;min-height:180px;border-radius:var(--r-xl);overflow:hidden;
+ border:1px solid var(--line);background:var(--stage);box-shadow:var(--inner);
+ display:flex;align-items:center;justify-content:center;padding:20px;user-select:none;container-type:size;
+}
+#amb{
+ position:absolute;inset:-45px;width:calc(100% + 90px);height:calc(100% + 90px);
+ object-fit:cover;filter:blur(58px) saturate(1.3);opacity:.26;pointer-events:none;
+ transition:opacity 240ms ease-out;
+}
+.frame{
+ position:relative;z-index:1;display:flex;align-items:center;justify-content:center;
+ width:100%;height:100%;max-width:100%;max-height:100%;transform-origin:center center;will-change:transform;
+}
+.stage canvas#cv{
+ display:block;width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain;
+ border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.28),0 26px 64px rgba(0,0,0,.44);
+ transition:opacity 180ms ease-out;
+}
+.stage canvas#cv.swap{opacity:.86}
+.stage.zoomed{cursor:grab}.stage.zoomed:active{cursor:grabbing}
+
+/* Realistic Device & Frame Mockups */
+.stage[data-view="phone"] .frame{
+ width:auto;height:min(530px,92cqh);aspect-ratio:1/2;padding:12px;border-radius:44px;
+ background:linear-gradient(155deg,#3a3733 0%,#151311 45%,#282522 100%);
+ box-shadow:0 34px 75px rgba(0,0,0,.62),0 4px 12px rgba(0,0,0,.35),inset 0 0 0 1.5px rgba(255,255,255,.22),inset 0 0 0 4px #0b0a09;
+}
+.stage[data-view="phone"] .frame::before{
+ content:"";position:absolute;top:21px;left:50%;transform:translateX(-50%);width:74px;height:19px;border-radius:12px;
+ background:#070606;z-index:3;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09);
+}
+.stage[data-view="phone"] .frame::after{
+ content:"";position:absolute;inset:12px;border-radius:33px;z-index:2;pointer-events:none;
+ background:linear-gradient(128deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,0) 36%,rgba(255,255,255,0) 75%,rgba(255,255,255,.06) 100%);
+}
+.stage[data-view="phone"] canvas#cv{width:100%;height:100%;max-width:none;max-height:none;object-fit:cover;border-radius:33px;box-shadow:none}
+
+.stage[data-view="laptop"] .frame{
+ width:min(86cqw,740px);height:auto;aspect-ratio:16/10;max-height:86cqh;padding:14px 14px 20px;
+ border-radius:16px 16px 6px 6px;
+ background:linear-gradient(180deg,#2d2a27,#141210);
+ box-shadow:0 36px 75px rgba(0,0,0,.58),inset 0 0 0 1px rgba(255,255,255,.16),inset 0 0 0 3px #090807;
+}
+.stage[data-view="laptop"] .frame::before{
+ content:"";position:absolute;top:6px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;
+ background:#252930;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);z-index:3;
+}
+.stage[data-view="laptop"] .frame::after{
+ content:"";position:absolute;bottom:-12px;left:-6%;width:112%;height:12px;border-radius:2px 2px 12px 12px;
+ background:linear-gradient(180deg,#9b9489 0%,#5f5951 65%,#3b3732 100%);
+ box-shadow:0 16px 28px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.35);
+}
+.stage[data-view="laptop"] canvas#cv{width:100%;height:100%;max-width:none;max-height:none;object-fit:cover;border-radius:5px;box-shadow:none}
+
+.stage[data-view="poster"] .frame{
+ width:auto;height:auto;max-width:92cqw;max-height:92cqh;padding:24px;
+ background:linear-gradient(145deg,#faf7f0,#ede6da);
+ border:11px solid #1e1b18;border-radius:2px;
+ box-shadow:0 32px 66px rgba(0,0,0,.52),inset 0 3px 12px rgba(0,0,0,.18),0 0 0 1px rgba(255,255,255,.08);
+}
+.stage[data-view="poster"] .frame::after{
+ content:"";position:absolute;inset:0;pointer-events:none;z-index:2;
+ background:linear-gradient(122deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,0) 40%);
+}
+.stage[data-view="poster"] canvas#cv{width:auto;height:auto;max-width:calc(92cqw - 70px);max-height:calc(92cqh - 70px);border-radius:0;box-shadow:0 1px 4px rgba(0,0,0,.22)}
+
+/* Stage Floating Overlays (Zoom HUD + Toast Status) */
+.zhud{
+ position:absolute;right:12px;bottom:12px;z-index:6;display:flex;align-items:center;gap:3px;
+ padding:4px;border-radius:999px;background:var(--surf);backdrop-filter:blur(14px);
+ border:1px solid var(--line2);box-shadow:0 10px 26px rgba(0,0,0,.32);
+}
+.zhud button{padding:4px 9px;min-height:26px;font:500 11.5px var(--f-mono);border-radius:999px;border-color:transparent;background:transparent}
+.zhud button:hover{background:var(--card2)}
+.zhud span{min-width:44px;text-align:center;font:600 11.5px var(--f-mono);color:var(--ink)}
+.toast{
+ position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:6;max-width:calc(100% - 210px);
+ padding:6px 13px;border-radius:999px;background:var(--surf);backdrop-filter:blur(14px);
+ border:1px solid var(--line2);box-shadow:0 10px 26px rgba(0,0,0,.32);
+ font:500 12px var(--f-sans);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ pointer-events:none;
+}
+
+/* Meta Chips + Action Bar */
+.meta{
+ flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+ padding:8px 14px;border-radius:var(--r-lg);background:var(--surf);border:1px solid var(--line);
+}
+.meta-l{display:flex;align-items:center;gap:12px;min-width:0;flex-wrap:wrap}
+#cap{font:400 17px/1.1 var(--f-disp);color:var(--ink);white-space:nowrap}
+#qbadge{font:500 11.5px var(--f-mono);color:var(--mute)}
+.chips{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chips i{
+ position:relative;width:26px;height:26px;border-radius:8px;
+ border:1px solid rgba(255,255,255,.28);box-shadow:0 3px 10px rgba(0,0,0,.28);
+ cursor:pointer;transition:transform 160ms ease-out;
+}
+.chips i:hover{transform:translateY(-2px) scale(1.08)}
+.chips i::after{
+ content:attr(data-c);position:absolute;left:50%;bottom:calc(100% + 6px);transform:translateX(-50%) translateY(4px);
+ padding:2px 6px;border-radius:6px;background:var(--ink);color:var(--bg);font:600 10px var(--f-mono);
+ opacity:0;pointer-events:none;white-space:nowrap;transition:opacity 150ms ease-out,transform 150ms ease-out;
+}
+.chips i:hover::after{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.bar{flex:none;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.bar label{display:flex;align-items:center;gap:6px;font:600 11px var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--mute)}
+.bar select{width:auto;min-height:34px;padding:6px 28px 6px 10px}.bar input{width:auto;min-height:34px;padding:6px 10px}.bar input[type=number]{width:118px;font-family:var(--f-mono)}
+.grow{flex:1}
+
+/* Export Split Popover */
+.exp-wrap{position:relative}
+.exp-menu{
+ position:absolute;right:0;bottom:calc(100% + 8px);width:264px;z-index:30;padding:8px;
+ border-radius:var(--r-lg);background:var(--surf);backdrop-filter:blur(20px);
+ border:1px solid var(--line2);box-shadow:0 20px 50px rgba(0,0,0,.55),var(--inner);
+ display:grid;gap:5px;animation:popIn 160ms ease-out;
+}
+.exp-menu-head{
+ display:flex;justify-content:space-between;align-items:center;padding:4px 6px 6px;
+ border-bottom:1px solid var(--line);font:500 10.5px var(--f-mono);color:var(--mute);text-transform:uppercase;
+}
+.exp-menu button[data-k]{
+ width:100%;justify-content:space-between;padding:8px 10px;border-radius:8px;background:var(--card);border:1px solid transparent;
+}
+.exp-menu button[data-k]:hover{border-color:var(--acc);background:var(--card2)}
+.exp-menu button[data-k] strong{font:600 12.5px var(--f-sans);color:var(--ink)}
+.exp-menu button[data-k] span{font:500 11px var(--f-mono);color:var(--mute)}
+
+/* Batch Filmstrip Drawer */
+.batch{
+ flex:none;display:grid;grid-template-columns:minmax(0,1fr);min-width:0;max-width:100%;gap:8px;padding:10px 12px;border-radius:var(--r-xl);
+ background:var(--surf);backdrop-filter:blur(16px);border:1px solid var(--line);box-shadow:var(--inner);
+ overflow:hidden;
+}
+.batch-bar{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;width:100%;min-width:0;overflow-x:auto}
+.batch-bar label{display:flex;align-items:center;gap:6px;font:600 11px var(--f-mono);text-transform:uppercase;letter-spacing:.06em;color:var(--mute);flex-shrink:0}
+.batch-bar select{width:auto;min-height:34px;padding:6px 28px 6px 10px;flex-shrink:0}
+.batch-bar button{flex-shrink:0;white-space:nowrap}
+.batch-scroll{position:relative;min-height:124px;display:flex;align-items:stretch;min-width:0;max-width:100%;overflow:hidden}
+.grid{display:flex;gap:10px;overflow-x:auto;width:100%;min-width:0;max-width:100%;padding-bottom:4px;min-height:124px}
+.grid-empty{
+ display:none;position:absolute;inset:0;align-items:center;justify-content:center;gap:12px;
+ border:1px dashed var(--line2);border-radius:var(--r-lg);color:var(--mute);font:500 12.5px var(--f-sans);
+ pointer-events:none;
+}
+.grid:empty + .grid-empty{display:flex}
+figure{
+ flex:none;width:156px;height:122px;margin:0;position:relative;display:flex;flex-direction:column;gap:5px;
+ background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:6px;
+ transition:transform 170ms ease-out,border-color 170ms ease-out;
+}
+figure:hover{transform:translateY(-2px);border-color:var(--line2)}
+figure.approved{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}
+figure canvas{flex:1;min-height:0;width:100%;object-fit:contain;cursor:pointer;border-radius:7px}
+figcaption{flex:none;font:500 11px var(--f-sans);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ck{
+ position:absolute;top:10px;left:10px;z-index:2;width:24px;height:24px;border-radius:7px;
+ background:rgba(15,14,13,.68);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.22);
+ display:grid;place-items:center;cursor:pointer;
+}
+.ck input{position:absolute;opacity:0;inset:0;cursor:pointer;margin:0}
+.ck svg{width:14px;height:14px;stroke:#fff;opacity:.35;transition:opacity 140ms}
+figure.approved .ck{background:var(--acc);border-color:var(--acc)}
+figure.approved .ck svg{stroke:var(--onacc);opacity:1}
+
+@keyframes popIn{from{opacity:0;transform:translateY(6px) scale(.98)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation-duration:1ms!important;transition-duration:1ms!important}
+ button.pri::after{display:none}
+}
+@media (max-height:780px) and (min-width:861px){body{overflow-y:auto}.app-shell{min-height:780px}}
+@media (max-width:860px){
+ html,body{height:auto;min-height:100%;width:100%;max-width:100%;overflow-x:hidden;overflow-y:auto}
+ .app-shell{padding:8px;width:100%;max-width:100vw;overflow-x:hidden}
+ header{flex-direction:column;align-items:stretch;gap:8px;padding:10px;width:100%;max-width:100%;min-width:0}
+ .brand{justify-content:flex-start;min-width:0}
+ .brand h1{font-size:19px;white-space:normal}
+ .hright{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:100%;min-width:0}
+ .hright select,.hright button{width:100%;min-width:0;max-width:100%;padding:6px 8px;font-size:12px}
+ .hright #view{grid-column:1 / -1;padding-right:26px}
+ .kbd-hint,.pill{display:none}
+ .app{display:flex;flex-direction:column;width:100%;max-width:100%;min-width:0}
+ main{order:-1;width:100%;max-width:100%;min-width:0}
+ .stage{flex:none;height:44vh;min-height:230px;padding:12px;width:100%;max-width:100%;min-width:0}
+ .stage canvas#cv{max-width:calc(100cqw - 24px);max-height:calc(100cqh - 24px)}
+ .toast{max-width:calc(100% - 20px);bottom:54px;font-size:11.5px}
+ .exp-menu{left:0;right:auto;width:min(264px,calc(100vw - 32px))}
+ .meta,.bar,.batch{width:100%;max-width:100%;min-width:0}
+ .bar label{min-width:0}
+ .bar input[type=number]{width:92px;min-width:0}
+ .batch{grid-template-columns:minmax(0,1fr)}
+ .batch-bar{flex-wrap:wrap}
+ .grid-empty{padding:12px;text-align:center;flex-direction:column;gap:6px;font-size:12px}
+ aside{border-radius:var(--r-xl) var(--r-xl) 14px 14px;max-height:none;width:100%;max-width:100%;min-width:0}
+ .pane{overflow:visible;min-width:0;width:100%}
+ .grp,.grp>*{min-width:0;max-width:100%}
+ .style-row{flex-wrap:wrap;min-width:0;width:100%}
+ .style-row select{flex:1 1 180px;width:100%;min-width:0}
+ .style-card{width:100%;justify-content:space-between}
+ .style-pop{left:10px;right:10px;top:auto;bottom:14px;width:auto}
+ button,select,input[type=text],input[type=number]{min-height:42px}
+ .chips i{width:28px;height:28px}
+}</style></head><body>
+<div class="app-shell">
+<header>
+ <div class="brand">
+  <div class="monogram" aria-hidden="true"><div class="monogram-orb" id="brandOrb"></div><span>RI</span></div>
+  <h1>RI Gradient Studio</h1>
+  <span class="pill">Luminous Atelier</span>
+ </div>
+ <div class="hright">
+  <span class="kbd-hint" id="kbdHint" title="Keyboard shortcuts: Space New variation, E Export, T Theme, F Fit"><b>Space</b> New · <b>E</b> Export · <b>T</b> Theme · <b>F</b> Fit</span>
+  <select id="view" aria-label="Preview mode">
+   <option value="canvas" selected>View: Canvas</option>
+   <option value="phone">Mockup: Phone</option>
+   <option value="laptop">Mockup: Laptop</option>
+   <option value="poster">Mockup: Poster</option>
+  </select>
+  <button id="zoom" type="button"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M11 8v6M8 11h6"/></svg><span>Zoom 100%</span></button>
+  <button id="reset" type="button" title="Reset all settings to defaults"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Reset</button>
+  <button id="theme" type="button">Theme: Dark</button>
+ </div>
+</header>
+
+<div class="app">
+<aside aria-label="Studio Controls">
+ <div class="tabs" role="tablist">
+  <div class="tab-pill" id="tabPill" aria-hidden="true"></div>
+  <button role="tab" aria-selected="true" data-p="p1" type="button"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-1.1-.9-2-2-2h-2.5a1.5 1.5 0 0 1-1.5-1.5V6A3 3 0 0 0 12 3Z"/></svg>Style</button>
+  <button role="tab" aria-selected="false" data-p="p2" type="button"><svg class="ic" viewBox="0 0 24 24"><path d="m12 3 1.9 5.2L19 10l-5.1 1.8L12 17l-1.9-5.2L5 10l5.1-1.8Z"/></svg>Finish</button>
+   <button role="tab" aria-selected="false" data-p="p4" type="button"><svg class="ic" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>Studio</button>
+  <button role="tab" aria-selected="false" data-p="p3" type="button"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 4v16"/></svg>Canvas</button>
+ </div>
+
+ <div class="pane" id="p1" role="tabpanel">
+  <div class="grp">
+   <div class="grp-head"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Design &amp; Structure</div>
+   <label class="fld">Search color palettes<input id="find" type="text" placeholder="Ocean, sunset, neon, pastel..." autocomplete="off"></label>
+   <label class="fld">Design preset
+    <div class="style-row">
+     <select id="style" hidden></select>
+     <button id="styleCard" class="style-card" type="button" aria-haspopup="dialog" aria-expanded="false" title="Open visual style gallery">
+      <span class="style-card-l">
+       <canvas id="styleThumb" width="76" height="56" aria-hidden="true"></canvas>
+       <span class="style-card-txt"><strong id="styleName">Gallery</strong><span id="styleCat">185+ previews</span></span>
+      </span>
+      <svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+     </button>
+    </div>
+   </label>
+   <label class="fld">Composition<select id="comp"></select></label>
+  </div>
+  <div class="grp">
+   <div class="grp-head"><svg class="ic" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r="2"/><circle cx="17.5" cy="10.5" r="2"/><circle cx="8.5" cy="7.5" r="2"/><circle cx="6.5" cy="12.5" r="2"/><path d="M12 22a10 10 0 1 1 10-10c0 2-1.5 3-3 3h-2a1.5 1.5 0 0 0-1.5 1.5c0 .7.3 1.2.6 1.7.5.8.1 1.8-.9 2-.9.2-2 .8-3.2.8Z"/></svg>Palette &amp; Harmony</div>
+   <label class="fld">Color source<select id="col"></select></label>
+   <label class="fld">Color harmony<select id="harm"></select></label>
+   <label class="fld"><span class="f-row">Your own colors<span class="hex-tools"><input id="cpick" type="color" value="#e5a964" title="Pick a color to add"><button id="clrhex" type="button">Clear</button></span></span><input id="hex" type="text" placeholder="#1F3A93, #F7B32B, #E4572E" autocomplete="off"></label>
+   <label class="fld"><span class="f-row">Color stops<b class="val" id="v-stops">4</b></span><input id="stops" type="range" min="3" max="6" value="4"></label>
+  </div>
+ </div>
+
+ <div class="pane" id="p2" role="tabpanel" hidden>
+  <div class="grp">
+   <div class="grp-head"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Atmosphere &amp; Surface</div>
+   <label class="fld">Lighting<select id="light"></select></label>
+   <label class="fld">Texture<select id="tex"></select></label>
+   <label class="fld"><span class="f-row">Film Grain<b class="val" id="v-noise">35</b></span><input id="noise" type="range" min="0" max="100" value="35"></label>
+  </div>
+  <div class="grp">
+   <div class="grp-head"><svg class="ic" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>Tone Grading</div>
+   <label class="fld"><span class="f-row">Saturation<b class="val" id="v-sat">100</b></span><input id="sat" type="range" min="40" max="140" value="100"></label>
+   <label class="fld"><span class="f-row">Contrast<b class="val" id="v-con">100</b></span><input id="con" type="range" min="60" max="140" value="100"></label>
+  </div>
+ </div>
+
+ <div class="pane" id="p4" role="tabpanel" hidden></div>
+  <div class="pane" id="p3" role="tabpanel" hidden>
+  <div class="grp">
+   <div class="grp-head"><svg class="ic" viewBox="0 0 24 24"><path d="M21 15V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9M2 19h20M8 21h8"/></svg>Dimensions &amp; Resolution</div>
+   <label class="fld">Aspect ratio<select id="ratio"></select></label>
+   <div class="row" id="custom" hidden><label class="fld">Width<input id="cw" type="number" value="5000" min="256" max="12000"></label><label class="fld">Height<input id="ch" type="number" value="3000" min="256" max="12000"></label></div>
+   <label class="fld">Export size<select id="size"></select></label>
+   <label class="fld">Export DPI / PPI<select id="ppi"><option>72</option><option>150</option><option selected>300</option><option>600</option></select></label>
+  </div>
+  <div class="grp">
+   <div class="grp-head"><svg class="ic" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>Stock Output &amp; Naming</div>
+   <div class="row"><label class="fld">Min JPG (MB)<input id="minmb" type="number" value="4" min="0" max="50" step="0.5"></label><label class="fld">Max JPG (MB)<input id="maxmb" type="number" value="20" min="0" max="100" step="1"></label></div>
+   <label class="fld">File name prefix<input id="prefix" type="text" placeholder="RI-Gradient" autocomplete="off"></label>
+  </div>
+ </div>
+</aside>
+
+<div class="style-pop" id="stylePop" role="dialog" aria-label="Style Gallery" hidden>
+ <div class="style-pop-head">
+  <input id="styleSearch" type="text" placeholder="Search 185+ styles, concepts, engines..." autocomplete="off">
+  <button id="styleClose" type="button" aria-label="Close gallery"><svg class="ic" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+ </div>
+ <div class="style-grid" id="styleGrid"></div>
+</div>
+
+<main>
+ <div class="stage" id="stage" data-view="canvas" title="Scroll mouse wheel to Zoom In/Out · Drag to Pan · Double-click to Fit">
+  <canvas id="amb" width="64" height="64" aria-hidden="true"></canvas>
+  <div class="frame" id="frame"><canvas id="cv" aria-label="Gradient preview"></canvas></div>
+  <div class="toast" id="status" role="status" aria-live="polite"></div>
+  <div class="zhud" aria-label="Canvas Zoom Controls">
+   <button id="zout" type="button" title="Zoom Out">-</button>
+   <span id="zlbl">Fit</span>
+   <button id="zin" type="button" title="Zoom In">+</button>
+   <button id="zfit" type="button" title="Reset Zoom (F)">Fit</button>
+  </div>
+ </div>
+
+ <div class="meta">
+  <div class="meta-l">
+   <span id="cap">Aurora · 5000×3000</span>
+   <div class="chips" id="chips" title="Click swatch to copy · Shift+Click to add to Custom Colors"></div>
+  </div>
+  <span id="qbadge">300 DPI · Grain 35% · JPG 4-20 MB</span>
+ </div>
+
+ <div class="bar">
+  <label>Seed<input id="seed" type="number" min="1" value="20261112"></label>
+  <button id="again" class="pri" type="button"><svg class="ic" viewBox="0 0 24 24"><path d="m12 3 1.9 5.2L19 10l-5.1 1.8L12 17l-1.9-5.2L5 10l5.1-1.8Z"/></svg>New variation</button>
+  <button id="copymeta" type="button" title="Copy Adobe Stock Title, Description & Keywords"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy Meta</button>
+  <span class="grow"></span>
+  <div class="exp-wrap" id="expWrap">
+   <button id="expBtn" type="button" aria-haspopup="true" aria-expanded="false"><svg class="ic" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export<svg class="ic" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+   <div class="exp-menu" id="expMenu" role="menu" hidden>
+    <div class="exp-menu-head"><span>Export Asset</span><span id="expResLbl">5000×3000</span></div>
+    <button data-k="svg" type="button" role="menuitem"><strong>SVG</strong><span>Simplified vector</span></button>
+    <button data-k="png" type="button" role="menuitem"><strong>PNG Master</strong><span>Lossless · DPI</span></button>
+    <button data-k="jpg" type="button" role="menuitem"><strong>JPG Stock</strong><span>4–20 MB · XMP</span></button>
+    <button data-k="pdf" type="button" role="menuitem"><strong>PDF Print</strong><span>Image in PDF · DPI</span></button>
+   </div>
+  </div>
+ </div>
+
+ <section class="batch" aria-label="Batch Filmstrip">
+  <div class="batch-bar">
+   <label>Batch<select id="count"><option>6</option><option selected>12</option><option>24</option><option>48</option></select></label>
+   <label>as<select id="bfmt"><option value="png">PNG</option><option value="jpg" selected>JPG</option><option value="svg">SVG</option><option value="pdf">PDF</option></select></label>
+   <button id="gen" class="pri" type="button"><svg class="ic" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M7 6v12M17 6v12"/></svg>Generate batch</button>
+   <button id="selall" type="button" disabled style="min-width:110px;text-align:center">Approve All</button>
+   <button id="expall" type="button" disabled title="Export ALL variations as ZIP (every variant, ignoring approval)" style="background:var(--acc);color:var(--onacc);border-color:var(--acc);font-weight:700;white-space:nowrap"><svg class="ic" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export All</button>
+   <button id="zip" type="button" disabled title="Download approved items (or all if none ticked) as ZIP" style="white-space:nowrap"><svg class="ic" viewBox="0 0 24 24"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>Download ZIP</button>
+   <button id="csv" type="button" disabled style="white-space:nowrap"><svg class="ic" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M8 13h8M8 17h8M14 2v6h6"/></svg>CSV</button>
+  </div>
+  <div class="batch-scroll">
+   <div class="grid" id="grid"></div>
+   <div class="grid-empty">
+    <svg class="ic" style="width:26px;height:26px;opacity:.65" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="m2 15 5-5 4 4 3-3 8 6"/><circle cx="8" cy="9" r="1.3"/></svg>
+    <span>Generate a batch to inspect variations, approve keepers, and export ZIP + Stock CSV.</span>
+   </div>
+  </div>
+ </section>
+</main>
+</div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const rng=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const hsl=(h,s,l)=>{h=(h%360+360)%360;s/=100;l/=100;const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));return'#'+[f(0),f(8),f(4)].map(v=>Math.round(v*255).toString(16).padStart(2,'0')).join('').toUpperCase()};
+const rgba=(c,a)=>{const n=parseInt(c.slice(1),16);return`rgba(${n>>16},${n>>8&255},${n&255},${a})`};
+const mixHex=(c1,c2,t)=>{const a=parseInt(c1.slice(1),16),b=parseInt(c2.slice(1),16),u=t*t*(3-2*t),ch=s=>Math.round(((a>>s)&255)*(1-u)+((b>>s)&255)*u).toString(16).padStart(2,'0');return'#'+(ch(16)+ch(8)+ch(0)).toUpperCase()};
+const smoothStops=(g,pal)=>{const n=pal.length-1;if(n<1){g.addColorStop(0,pal[0]||"#000000");return}const steps=n*3;for(let s=0;s<=steps;s++){const u=s/steps,p=u*n,i=Math.min(n-1,p|0);g.addColorStop(u,mixHex(pal[i],pal[i+1],p-i))}};
+
+/* 60 styles from the original script: name, background, shape, color collection, effect */
+const CATS=[
+["Core gradients","Linear,linear,bands,Vibrant,lighting;Radial,radial,orbs,Vibrant,glow;Conic,radial,wedges,Futuristic,lighting;Angular,linear,facets,Vibrant,shadow;Diamond,radial,diamonds,Luxury,lighting;Freeform,linear,meshLobes,Pastel,blur;Mesh,linear,meshLobes,Vibrant,mesh;Multi-Stop,linear,bands,Rainbow,transition;Transparent,linear,veils,Soft Neutral,overlay;Layered,linear,terraces,Ocean,layer"],
+["Fluid and organic","Fluid,linear,ribbons,Tropical,liquid;Liquid,radial,blobs,Ocean,liquid;Aurora,linear,curtains,Futuristic,glow;Organic,linear,blobs,Earth Tone,organic;Abstract Wave,linear,waves,Ocean,wave;Mesh Wave,linear,waves,Futuristic,mesh;Spiral,radial,spiralArcs,Vibrant,glow;Flowing Curve,linear,ribbons,Sunset,wave;Soft Blur-Inspired,radial,blurShells,Pastel,blur;Atmospheric,linear,clouds,Soft Neutral,glow"],
+["Color and light","Rainbow,linear,ribbons,Rainbow,transition;Sunset,linear,horizon,Sunset,lighting;Sunrise,radial,horizon,Sunset,glow;Neon,linear,streaks,Neon,glow;Holographic,linear,meshLobes,Futuristic,reflection;Iridescent,radial,blobs,Pastel,reflection;Luminous,radial,orbs,Vibrant,glow;Glowing,radial,blurShells,Dark Premium,glow;Reflective,linear,bands,Metallic,reflection;Light Beam,linear,streaks,Dark Premium,lighting"],
+["Material and texture","Metallic,linear,bands,Metallic,metallic;Chrome,linear,ribbons,Metallic,metallic;Glass,linear,panels,Futuristic,glass;Frosted Glass,radial,panels,Pastel,glass;Grain,linear,meshLobes,Earth Tone,grain;Noise-Inspired,radial,orbs,Dark Premium,grain;Halftone,linear,bands,Vibrant,halftone;Bokeh,radial,bokeh,Dark Premium,glow;Vintage,linear,horizon,Earth Tone,grain;Retro,linear,rings,Seasonal,halftone"],
+["Modern and commercial","Pastel,linear,blobs,Pastel,blur;Minimal,linear,panels,Minimal,transition;Luxury,linear,ribbons,Luxury,metallic;Dark,radial,meshLobes,Dark Premium,lighting;Monochromatic,linear,terraces,Minimal,shadow;Duotone,linear,waves,Vibrant,layer;Tritone,linear,bands,Tropical,transition;Geometric,linear,polygons,Futuristic,shadow;Polygon,linear,facets,Vibrant,shadow;3D-Inspired,radial,spheres3d,Futuristic,lighting"],
+["Advanced compositions","Mesh Blob,radial,blobs,Vibrant,mesh;Multi-Layer Wave,linear,waves,Ocean,wave;Abstract Geometry,linear,polygons,Luxury,glass;Overlapping Shapes,linear,veils,Tropical,overlay;Color Field,linear,colorFields,Minimal,transition;Radial Burst,radial,wedges,Neon,glow;Soft Color Transition,linear,blurShells,Soft Neutral,transition;Dynamic Diagonal,linear,streaks,Vibrant,lighting;Organic Geometry,linear,mixedOrgGeo,Earth Tone,organic;Experimental Gradient,radial,mixedExp,Futuristic,reflection"]];
+const STYLES=[];CATS.forEach(([c,s])=>s.split(";").forEach(x=>{const[n,bg,shape,col,fx]=x.split(",");STYLES.push({n,c,bg,shape,col,fx})}));
+const GROUP={meshLobes:"lobes",blobs:"lobes",orbs:"lobes",blurShells:"lobes",clouds:"lobes",bokeh:"lobes",spheres3d:"lobes",mixedOrgGeo:"lobes",mixedExp:"lobes",waves:"waves",ribbons:"waves",curtains:"waves",spiralArcs:"waves",glassRibbon:"glassRibbon",silkFold:"silkFold",bands:"bands",terraces:"bands",colorFields:"bands",panels:"bands",veils:"bands",wedges:"wedges",facets:"facets",polygons:"facets",diamonds:"facets",horizon:"horizon",streaks:"streaks",rings:"rings"};
+/* 15 color collections: hue ranges | saturation | lightness */
+const SPEC={};"Pastel:0-360|32-62|74-90;Neon:165-210,265-335,115-155|88-100|48-66;Luxury:210-265,32-52,320-355|35-72|14-58;Metallic:35-50,205-225,15-32|8-42|18-86;Earth Tone:18-52,75-130|24-58|24-76;Ocean:175-232|48-88|18-82;Sunset:330-360,0-48,245-285|64-96|24-78;Tropical:140-195,330-360,25-58|68-95|42-76;Rainbow:0-360|72-94|48-68;Dark Premium:210-290,175-210,330-360|42-82|8-42;Futuristic:180-225,255-315|70-98|16-72;Minimal:195-240,25-45|12-38|65-93;Vibrant:0-360|74-96|42-72;Soft Neutral:25-48,200-230|10-28|55-91;Seasonal:10-45,140-185,335-355|48-82|30-76".split(";").forEach(e=>{const[n,r]=e.split(":"),[h,s,l]=r.split("|"),p=v=>v.split("-").map(Number);SPEC[n]={h:h.split(",").map(p),s:p(s),l:p(l)}});
+const RATIOS=[["5:3 default",5000,3000],["Square stock",4000,4000],["Square 5K",5000,5000],["Landscape 3:2",4000,2667],["Landscape 2:1",4000,2000],["Landscape 6K",6000,4000],["Portrait 2:3",4000,6000],["Portrait 3K",3000,4500],["4K UHD 16:9",3840,2160],["8K UHD 16:9",7680,4320],["Story 9:16",2880,5120],["Ultrawide 21:9",5880,2520]];
+const SIZES=[["Preset size",0],["2K long side",2560],["4K long side",3840],["6K long side",5760],["8K long side",7680]];
+
+const THEMES=[["Arctic Blue","#0C3460,#2A80B9,#87D4F0,#E4F6FF"],["Ocean Teal","#063648,#0E7686,#34BAB6,#BAF2E8"],["Tropical Aqua","#006E82,#12C2C6,#66EED2,#DAFCEB"],["Coral Sunset","#5C1C48,#D4485C,#F8806C,#FFD4A8"],["Golden Hour","#6C2E20,#D0662A,#F8AE48,#FFECA8"],["Desert Dune","#805230,#C28E5C,#E4BE8A,#F8E6C6"],["Lavender Dream","#523A84,#8E70CC,#CAB4F0,#F2E8FF"],["Rose Quartz","#944E66,#D48498,#F0BAC6,#FCE8EE"],["Cherry Blossom","#9E3E62,#E07A9C,#F8BCD0,#FFECF2"],["Sakura Pink","#B65276,#EE94B2,#FCCCDC,#FFF2F6"],["Emerald Forest","#0A3A2A,#16764E,#3EB276,#B2E8C0"],["Moss Green","#2A3E20,#567638,#94B062,#D4E2A8"],["Lime Citrus","#30761C,#7AC42A,#C6EC4E,#F2FCAC"],["Lemon Zest","#A28412,#E4C424,#FCEA60,#FFF8BA"],["Peach Sorbet","#C65C44,#F49270,#FCC4A4,#FFECDC"],["Apricot Glow","#BC562A,#F2904E,#FCC48A,#FFECCC"],["Mango Tango","#BA4416,#EE7C22,#FCB83A,#FFE88E"],["Papaya Orange","#C04224,#F2723A,#FCA86C,#FFE0BA"],["Watermelon Pink","#AC1C44,#EA446C,#FA869E,#FFD4DE"],["Berry Crush","#5C1244,#A8226C,#DE5694,#F8B2D0"],["Blueberry Violet","#26206C,#4E44B0,#8A80E0,#D2CEFA"],["Grape Purple","#3E125C,#762A9E,#B062D0,#E4BCF5"],["Plum Velvet","#340E34,#6C2062,#A84C8E,#E4A6CC"],["Amethyst Glow","#4A1C76,#8A44BC,#C688E8,#F0D0FC"],["Indigo Night","#0E1038,#2A2E7E,#5860BC,#B2BCEE"],["Midnight Navy","#08102A,#122A58,#2E5894,#7EA8D4"],["Cobalt Pulse","#0C2A80,#1C56D4,#4E94F8,#B2D8FF"],["Electric Cyan","#083460,#00A8DE,#30E4F8,#C4FCFF"],["Glacier Mint","#1C6266,#4EB6B2,#9CE8DE,#E4FCF8"],["Icy Silver","#667280,#A4B0BE,#D4DCE6,#F4F8FC"],["Champagne Gold","#80663E,#C0A26C,#E8D4A8,#FCF4E0"],["Rose Gold","#8A4E4C,#CA867E,#ECBAB0,#FCE8E2"],["Copper Bronze","#582616,#A4522E,#D68858,#F4CAA4"],["Liquid Chrome","#242830,#7A8290,#DAE0EA,#606876"],["Platinum Shine","#444852,#949AA6,#D8DEE6,#F6F8FC"],["Black Onyx","#080A0E,#181C24,#343A46,#6C7484"],["Obsidian Gold","#0C0C12,#262018,#B0883A,#F2D07C"],["Pearl White","#B6BCCA,#DADEE8,#F2F4F8,#FEFEFF"],["Opal Shimmer","#A8DAE0,#D8C0EE,#F8D6DE,#E8F8F4"],["Holographic Prism","#44BCF8,#A870FC,#FC7ED0,#94F8DA"],["Northern Lights","#0A1834,#129484,#44E8A8,#8E6CE4"],["Cosmic Galaxy","#0E0A2A,#441876,#A830A8,#5CA8F2"],["Nebula Cloud","#160C36,#7A2284,#E4589C,#80C6F8"],["Solar Flare","#480C0E,#C42E12,#F8881C,#FFE476"],["Stardust","#121636,#3A4280,#928ED0,#EEE8FC"],["Moonlit Sky","#0C1630,#263E6C,#6C8EBC,#D4E4F6"],["Deep Space","#060816,#141A44,#343880,#747AC4"],["Meteor Shower","#0C1026,#204880,#62B6E4,#E4F6FF"],["Planetary Rings","#2A1C38,#805C76,#D0A894,#F4E0C6"],["Eclipse Shadow","#080810,#241A34,#76404E,#F2A862"],["Soft Cotton Candy","#A8D0F8,#DABCF2,#FAC6E0,#FEECF6"],["Vanilla Cream","#CCB68E,#E8D6B6,#F8EED6,#FFFAEE"],["Pistachio Milk","#769866,#A8CA94,#D4EAC0,#F2FAE6"],["Strawberry Milk","#D06680,#EE9EB2,#FCCCD8,#FFF0F4"],["Blue Lagoon","#0C5276,#189EC2,#58DAE4,#C6F8FA"],["Mint Sorbet","#3A9C86,#7AD4BA,#BAF2DE,#E8FCF4"],["Cotton Candy","#76BAF6,#C49EF2,#F8A8D4,#FEE0F0"],["Pastel Rainbow","#F8B2BC,#FADAA8,#BAECC6,#B0D4F8"],["Powder Blue","#6C94BC,#9EC0E0,#CCE2F4,#ECF6FE"],["Blush Beige","#B0867A,#D6B2A4,#EED8CC,#FCF2EA"],["Autumn Leaves","#662212,#B64418,#E4802A,#F6C462"],["Maple Amber","#70260C,#BA4E12,#E88E26,#FAD06C"],["Pumpkin Spice","#7A2E12,#C65820,#EC8E48,#FCCE94"],["Cinnamon Brown","#442214,#7C4226,#B0724E,#E2B692"],["Terracotta Clay","#7C3022,#BA563E,#DE886C,#F6CCB6"],["Rustic Sandstone","#7E583E,#B28862,#D8B68E,#F2E0C2"],["Canyon Red","#5C1612,#A83024,#DA6244,#F6AC80"],["Sahara Gold","#8E5C1C,#CC9234,#EEC468,#FCEAB2"],["Savanna Heat","#802A12,#C66020,#EE9E40,#FCDA88"],["Volcanic Ember","#1A0E10,#761610,#DA4416,#FCA838"],["Spring Meadow","#2A7634,#6CB856,#B2E280,#E8F8C4"],["Wildflower Bloom","#62348E,#CA5694,#F6A870,#FCE2A8"],["Botanical Garden","#12422E,#2E7E52,#6CB676,#C6E8BA"],["Fern Green","#184424,#3A7C44,#70B06C,#BAE2AC"],["Jade Stone","#124E44,#2E8A74,#68C0A4,#BCECD8"],["Bamboo Mist","#40603E,#7A9E6C,#B6D09E,#E4F0D0"],["Rainforest Canopy","#0A3022,#1A6240,#3A9A60,#8ED498"],["Misty Mountain","#2C3E52,#5C748A,#9CB2C4,#DAE4EE"],["Alpine Lake","#0E4460,#2486A2,#66C4D4,#C6F2F6"],["Morning Dew","#5C8A84,#94C4BA,#CCE8E0,#F0FAF6"],["Neon Cyber","#0E0A2E,#00DAFF,#B024FF,#FF2AA8"],["Cyberpunk Magenta","#120826,#8E1294,#F224A8,#40DEFF"],["Laser Lime","#0C1A14,#1C8E3A,#88F22A,#DEFF8A"],["Electric Violet","#180A44,#621ADA,#AC44FF,#E4A8FF"],["Digital Blue","#08184E,#1258DA,#34ACFF,#A8E4FF"],["Synthwave Sunset","#180C3A,#921C8A,#F64E7A,#FFC648"],["Retro Arcade","#160E3E,#E42A76,#F8B030,#2ED4E4"],["Vaporwave Pink","#3E2A80,#B260D6,#FC88CA,#80E8F2"],["Futuristic Titanium","#222A38,#60728A,#B0C2D6,#E8F0F8"],["Techno Circuit","#081622,#0E6080,#20CADA,#94F8F0"],["Minimal Slate","#2E3844,#5C6A7A,#9CA8B6,#DEE4EC"],["Warm Greige","#766C60,#A2988A,#CCC4B8,#EEEAE2"],["Stone Gray","#4C5056,#7E8288,#B2B6BC,#E2E4E8"],["Concrete Mist","#62686E,#949AA0,#C6CCD0,#ECF0F2"],["Urban Charcoal","#16181C,#343840,#606670,#9CA2AC"],["Monochrome Ink","#0A0C10,#2A2E36,#747A84,#DADEE4"],["Graphite Smoke","#202228,#4A4E58,#868A94,#CACED6"],["Soft Taupe","#6C5C52,#98867A,#C4B6AA,#ECE4DC"],["Muted Olive","#444C30,#747E56,#A8B086,#DAE0C0"],["Nordic Frost","#5C768E,#94AEC4,#CCDEEC,#F0F8FC"],["Sapphire Glass Wave","#E4ECFC,#3B8DF8,#1E12D0,#040624"],["Volumetric Silk Pastel","#F7B6F5,#9684F8,#F98B88,#168A24"]],COLL=[["Wedding & Romance","Wedding Luxury Gradient","#A27076,#E4B8BC,#F4E0C6,#FEF6F2","linear","blurShells","blur",0],["Wedding & Romance","Wedding Floral Gradient","#A27076,#E4B8BC,#F4E0C6,#FEF6F2","linear","blurShells","blur",0],["Wedding & Romance","Wedding Invitation Gradient","#A27076,#E4B8BC,#F4E0C6,#FEF6F2","linear","blurShells","blur",0],["Wedding & Romance","Bridal Pink Gradient","#B04070,#EA7CA8,#FABAD6,#FFEAF4","linear","blurShells","blur",0],["Wedding & Romance","Bridal Champagne Gradient","#8A724E,#C6AE80,#ECDCBA,#FEF6E8","linear","blurShells","blur",0],["Wedding & Romance","Romantic Rose Gradient","#98264A,#DE5C7E,#F8ACBC,#FFE8EE","linear","blurShells","blur",0],["Wedding & Romance","Elegant Wedding Gold Gradient","#7C5C24,#C49844,#EECC76,#FEF2C4","linear","blurShells","blur",0],["Wedding & Romance","Wedding Pastel Gradient","#A27076,#E4B8BC,#F4E0C6,#FEF6F2","linear","blurShells","blur",0],["Wedding & Romance","Anniversary Gradient","#A27076,#E4B8BC,#F4E0C6,#FEF6F2","linear","blurShells","blur",0],["Wedding & Romance","Engagement Celebration Gradient","#A27076,#E4B8BC,#F4E0C6,#FEF6F2","linear","blurShells","blur",0],["Birthday & Celebration","Birthday Party Gradient","#8026A8,#F24A8A,#FCC43E,#44CEE8","linear","meshLobes","transition",0],["Birthday & Celebration","Colorful Balloon Gradient","#8026A8,#F24A8A,#FCC43E,#44CEE8","radial","bokeh","glow",0],["Birthday & Celebration","Birthday Confetti Gradient","#8026A8,#F24A8A,#FCC43E,#44CEE8","radial","bokeh","glow",0],["Birthday & Celebration","Kids Birthday Gradient","#8026A8,#F24A8A,#FCC43E,#44CEE8","linear","meshLobes","transition",0],["Birthday & Celebration","Birthday Cake Gradient","#8026A8,#F24A8A,#FCC43E,#44CEE8","linear","meshLobes","transition",0],["Birthday & Celebration","Luxury Birthday Gradient","#8026A8,#F24A8A,#FCC43E,#44CEE8","linear","meshLobes","transition",0],["Birthday & Celebration","Neon Birthday Gradient","#0E0A2A,#00DAFF,#B826FF,#FF30B0","linear","meshLobes","transition",0],["Birthday & Celebration","Rainbow Celebration Gradient","#EE486C,#F8A844,#4ED094,#488EF2","linear","polygons","lighting",0],["Birthday & Celebration","Party Celebration Gradient","#8026A8,#F24A8A,#FCC43E,#44CEE8","linear","meshLobes","transition",0],["Birthday & Celebration","Milestone Birthday Gradient","#8026A8,#F24A8A,#FCC43E,#44CEE8","linear","meshLobes","transition",0],["Ramadan","Ramadan Kareem Gradient","#0C1C3A,#1C4E76,#C4983A,#FCE28A","linear","meshLobes","transition",0],["Ramadan","Ramadan Lantern Gradient","#0C1C3A,#1C4E76,#C4983A,#FCE28A","linear","meshLobes","transition",0],["Ramadan","Islamic Geometric Gradient","#0C3630,#186C58,#C49C40,#F6E29E","linear","polygons","lighting",0],["Ramadan","Crescent Moon Gradient","#0A1C38,#164C62,#C69C3E,#FCE28A","linear","meshLobes","transition",0],["Ramadan","Ramadan Night Gradient","#0C1C3A,#1C4E76,#C4983A,#FCE28A","linear","meshLobes","transition",0],["Ramadan","Mosque Silhouette Gradient","#0A1C38,#164C62,#C69C3E,#FCE28A","linear","meshLobes","transition",0],["Ramadan","Ramadan Gold Gradient","#0C1C3A,#1C4E76,#C4983A,#FCE28A","linear","meshLobes","transition",0],["Ramadan","Ramadan Emerald Gradient","#0C1C3A,#1C4E76,#C4983A,#FCE28A","linear","meshLobes","transition",0],["Ramadan","Islamic Blue Gradient","#0C3630,#186C58,#C49C40,#F6E29E","linear","meshLobes","transition",0],["Ramadan","Ramadan Mubarak Gradient","#0C1C3A,#1C4E76,#C4983A,#FCE28A","linear","meshLobes","transition",0],["Eid Celebration","Eid Mubarak Gradient","#0A382A,#18704C,#C69E3E,#F8E498","linear","meshLobes","transition",0],["Eid Celebration","Eid Al-Fitr Gradient","#0A382A,#18704C,#C69E3E,#F8E498","linear","meshLobes","transition",0],["Eid Celebration","Eid Al-Adha Gradient","#0A382A,#18704C,#C69E3E,#F8E498","linear","meshLobes","transition",0],["Eid Celebration","Islamic Luxury Gradient","#0C3630,#186C58,#C49C40,#F6E29E","linear","meshLobes","transition",0],["Eid Celebration","Eid Gold Ornament Gradient","#0A382A,#18704C,#C69E3E,#F8E498","linear","meshLobes","transition",0],["Eid Celebration","Eid Celebration Gradient","#0A382A,#18704C,#C69E3E,#F8E498","linear","meshLobes","transition",0],["Eid Celebration","Islamic Emerald Gradient","#0C3630,#186C58,#C49C40,#F6E29E","linear","meshLobes","transition",0],["Eid Celebration","Crescent Celebration Gradient","#0A382C,#18724E,#CA9E40,#F8E49A","linear","meshLobes","transition",0],["Eid Celebration","Eid Night Sky Gradient","#0A382A,#18704C,#C69E3E,#F8E498","linear","meshLobes","transition",0],["Eid Celebration","Festive Islamic Pattern Gradient","#0C3630,#186C58,#C49C40,#F6E29E","linear","meshLobes","transition",0],["Easter","Easter Pastel Gradient","#D4E8F7,#E8DBF5,#F9E3EC,#FAF4DB","linear","meshLobes","transition",0],["Easter","Easter Egg Gradient","#B0DAF6,#D8C0F2,#FCD0E0,#FEF4BC","linear","meshLobes","transition",0],["Easter","Easter Bunny Gradient","#B0DAF6,#D8C0F2,#FCD0E0,#FEF4BC","linear","meshLobes","transition",0],["Easter","Spring Easter Gradient","#B0DAF6,#D8C0F2,#FCD0E0,#FEF4BC","linear","meshLobes","transition",0],["Easter","Easter Floral Gradient","#B0DAF6,#D8C0F2,#FCD0E0,#FEF4BC","linear","meshLobes","transition",0],["Easter","Easter Celebration Gradient","#B0DAF6,#D8C0F2,#FCD0E0,#FEF4BC","linear","meshLobes","transition",0],["Easter","Easter Rainbow Gradient","#EE486C,#F8A844,#4ED094,#488EF2","linear","polygons","lighting",0],["Easter","Easter Candy Gradient","#B0DAF6,#D8C0F2,#FCD0E0,#FEF4BC","linear","meshLobes","transition",0],["Easter","Easter Garden Gradient","#B0DAF6,#D8C0F2,#FCD0E0,#FEF4BC","linear","meshLobes","transition",0],["Easter","Easter Sunday Gradient","#B0DAF6,#D8C0F2,#FCD0E0,#FEF4BC","linear","meshLobes","transition",0],["Halloween","Halloween Orange Gradient","#120C1C,#702494,#E46218,#FCB238","linear","meshLobes","transition",0],["Halloween","Halloween Purple Gradient","#120C1C,#702494,#E46218,#FCB238","linear","meshLobes","transition",0],["Halloween","Spooky Night Gradient","#120C1C,#6C2292,#EA6218,#FCB238","linear","meshLobes","transition",0],["Halloween","Haunted House Gradient","#120C1C,#6C2292,#EA6218,#FCB238","linear","meshLobes","transition",0],["Halloween","Pumpkin Glow Gradient","#58200E,#B84A18,#F2802A,#FEC66C","radial","orbs","glow",0],["Halloween","Dark Gothic Gradient","#120C1C,#6C2292,#EA6218,#FCB238","linear","meshLobes","transition",0],["Halloween","Witchcraft Gradient","#120C1C,#6C2292,#EA6218,#FCB238","linear","meshLobes","transition",0],["Halloween","Halloween Smoke Gradient","#120C1C,#702494,#E46218,#FCB238","radial","blurShells","blur",0],["Halloween","Horror Atmosphere Gradient","#120C1C,#6C2292,#EA6218,#FCB238","linear","meshLobes","transition",0],["Halloween","Halloween Neon Gradient","#120C1C,#702494,#E46218,#FCB238","linear","meshLobes","transition",0],["New Year","New Year Celebration Gradient","#0A0C1C,#2A2252,#D4AC4A,#FEF2BC","linear","meshLobes","transition",0],["New Year","New Year Fireworks Gradient","#0A0C1C,#2A2252,#D4AC4A,#FEF2BC","radial","bokeh","glow",0],["New Year","Midnight Countdown Gradient","#0A0C1C,#2A2252,#D4AC4A,#FEF2BC","linear","meshLobes","transition",0],["New Year","Golden Celebration Gradient","#7C5C24,#C49844,#EECC76,#FEF2C4","linear","meshLobes","transition",0],["New Year","New Year Confetti Gradient","#0A0C1C,#2A2252,#D4AC4A,#FEF2BC","radial","bokeh","glow",0],["New Year","Champagne Party Gradient","#8A724E,#C6AE80,#ECDCBA,#FEF6E8","linear","meshLobes","transition",0],["New Year","New Year Neon Gradient","#0E0A2A,#00DAFF,#B826FF,#FF30B0","linear","meshLobes","transition",0],["New Year","Luxury Midnight Gradient","#0A0C1C,#2A2252,#D4AC4A,#FEF2BC","linear","meshLobes","transition",0],["New Year","Sparkling Celebration Gradient","#0A0C1C,#2A2252,#D4AC4A,#FEF2BC","radial","bokeh","glow",0],["New Year","New Year Abstract Gradient","#0A0C1C,#2A2252,#D4AC4A,#FEF2BC","linear","meshLobes","transition",0],["Independence Day & National","Independence Day Gradient","#0E2260,#2A56AC,#C41C2E,#F2F4FA","linear","meshLobes","transition",0],["Independence Day & National","Patriotic Red White Blue Gradient","#10306C,#2A70C0,#6CB8EA,#D6F0FE","linear","meshLobes","transition",0],["Independence Day & National","National Flag Color Gradient","#0E2260,#2A56AC,#C41C2E,#F2F4FA","linear","meshLobes","transition",0],["Independence Day & National","Freedom Celebration Gradient","#0E2260,#2A56AC,#C41C2E,#F2F4FA","linear","meshLobes","transition",0],["Independence Day & National","Republic Day Gradient","#0E2260,#2A56AC,#C41C2E,#F2F4FA","linear","meshLobes","transition",0],["Independence Day & National","Victory Day Gradient","#0E2260,#2A56AC,#C41C2E,#F2F4FA","linear","meshLobes","transition",0],["Independence Day & National","National Pride Gradient","#0E2260,#2A56AC,#C41C2E,#F2F4FA","linear","meshLobes","transition",0],["Independence Day & National","Democracy Day Gradient","#0E2260,#2A56AC,#C41C2E,#F2F4FA","linear","meshLobes","transition",0],["Independence Day & National","Memorial Day Gradient","#0E2260,#2A56AC,#C41C2E,#F2F4FA","linear","meshLobes","transition",0],["Independence Day & National","Unity Celebration Gradient","#0E2260,#2A56AC,#C41C2E,#F2F4FA","linear","meshLobes","transition",0],["Mother's Day","Mother's Day Pink Gradient","#B04070,#EA7CA8,#FABAD6,#FFEAF4","linear","blurShells","blur",0],["Mother's Day","Mother's Day Floral Gradient","#AC446C,#E886A4,#FAC4D4,#FFEEF4","linear","blurShells","blur",0],["Mother's Day","Mother's Love Gradient","#AC446C,#E886A4,#FAC4D4,#FFEEF4","linear","blurShells","blur",0],["Mother's Day","Mother's Day Pastel Gradient","#AC446C,#E886A4,#FAC4D4,#FFEEF4","linear","blurShells","blur",0],["Mother's Day","Elegant Rose Gradient","#9C4866,#DA7E98,#F4BACA,#FFEAF0","linear","blurShells","blur",0],["Mother's Day","Mother's Day Gold Gradient","#7C5C24,#C49844,#EECC76,#FEF2C4","linear","blurShells","blur",0],["Mother's Day","Family Love Gradient","#AC446C,#E886A4,#FAC4D4,#FFEEF4","linear","blurShells","blur",0],["Mother's Day","Soft Heart Gradient","#AC446C,#E886A4,#FAC4D4,#FFEEF4","linear","blurShells","blur",0],["Mother's Day","Mother's Day Celebration Gradient","#AC446C,#E886A4,#FAC4D4,#FFEEF4","linear","blurShells","blur",0],["Mother's Day","Floral Appreciation Gradient","#AC446C,#E886A4,#FAC4D4,#FFEEF4","linear","blurShells","blur",0],["Father's Day","Father's Day Blue Gradient","#10306C,#2A70C0,#6CB8EA,#D6F0FE","linear","meshLobes","transition",0],["Father's Day","Father's Day Classic Gradient","#0E244E,#265694,#866242,#DAE2EE","linear","meshLobes","transition",0],["Father's Day","Father's Day Luxury Gradient","#0E244E,#265694,#866242,#DAE2EE","linear","meshLobes","transition",0],["Father's Day","Father's Day Navy Gradient","#08122E,#163060,#36609E,#88B2DE","linear","meshLobes","transition",0],["Father's Day","Fatherhood Gradient","#0E244E,#265694,#866242,#DAE2EE","linear","meshLobes","transition",0],["Father's Day","Father's Day Brown Gradient","#442618,#7A482E,#B07A56,#E4BC9C","linear","meshLobes","transition",0],["Father's Day","Family Appreciation Gradient","#0E244E,#265694,#866242,#DAE2EE","linear","meshLobes","transition",0],["Father's Day","Father's Day Minimal Gradient","#0E244E,#265694,#866242,#DAE2EE","linear","colorFields","transition",0],["Father's Day","Father's Day Celebration Gradient","#0E244E,#265694,#866242,#DAE2EE","linear","meshLobes","transition",0],["Father's Day","Father's Day Metallic Gradient","#0E244E,#265694,#866242,#DAE2EE","linear","meshLobes","transition",0],["Back to School & Education","Back to School Gradient","#123880,#2E80D0,#F4BA40,#E4F2FE","linear","meshLobes","transition",0],["Back to School & Education","School Supplies Gradient","#123880,#2E80D0,#F4BA40,#E4F2FE","linear","meshLobes","transition",0],["Back to School & Education","Education Blue Gradient","#10306C,#2A70C0,#6CB8EA,#D6F0FE","linear","meshLobes","transition",0],["Back to School & Education","Academic Success Gradient","#123880,#2E80D0,#F4BA40,#E4F2FE","linear","meshLobes","transition",0],["Back to School & Education","Classroom Pastel Gradient","#123880,#2E80D0,#F4BA40,#E4F2FE","linear","meshLobes","transition",0],["Back to School & Education","Learning Innovation Gradient","#123880,#2E80D0,#F4BA40,#E4F2FE","linear","meshLobes","transition",0],["Back to School & Education","University Admission Gradient","#123880,#2E80D0,#F4BA40,#E4F2FE","linear","meshLobes","transition",0],["Back to School & Education","Graduation Celebration Gradient","#123880,#2E80D0,#F4BA40,#E4F2FE","linear","meshLobes","transition",0],["Back to School & Education","Study Motivation Gradient","#123880,#2E80D0,#F4BA40,#E4F2FE","linear","meshLobes","transition",0],["Back to School & Education","Digital Learning Gradient","#123880,#2E80D0,#F4BA40,#E4F2FE","linear","meshLobes","transition",0],["Black Friday & Cyber Monday","Black Friday Black Gradient","#08080A,#1A1A20,#3A3A44,#767680","linear","meshLobes","transition",0],["Black Friday & Cyber Monday","Black Friday Gold Gradient","#7C5C24,#C49844,#EECC76,#FEF2C4","linear","meshLobes","transition",0],["Black Friday & Cyber Monday","Black Friday Sale Gradient","#0A0A0E,#302416,#C69236,#E0263A","linear","meshLobes","transition",0],["Black Friday & Cyber Monday","Cyber Monday Blue Gradient","#081238,#125CDA,#2EC6FF,#B6EEFF","linear","meshLobes","transition",0],["Black Friday & Cyber Monday","Cyber Monday Technology Gradient","#081238,#125CDA,#2EC6FF,#B6EEFF","linear","polygons","lighting",0],["Black Friday & Cyber Monday","Shopping Festival Gradient","#0A0A0E,#302416,#C69236,#E0263A","linear","meshLobes","transition",0],["Black Friday & Cyber Monday","Mega Discount Gradient","#0A0A0E,#302416,#C69236,#E0263A","linear","meshLobes","transition",0],["Black Friday & Cyber Monday","E-Commerce Sale Gradient","#0A0A0E,#302416,#C69236,#E0263A","linear","meshLobes","transition",0],["Black Friday & Cyber Monday","Retail Promotion Gradient","#0A0A0E,#302416,#C69236,#E0263A","linear","polygons","lighting",0],["Black Friday & Cyber Monday","Luxury Shopping Gradient","#0A0A0E,#302416,#C69236,#E0263A","linear","meshLobes","transition",0],["Summer","Summer Beach Gradient","#1284BA,#38CED4,#F8A84E,#FFE288","linear","meshLobes","transition",0],["Summer","Tropical Summer Gradient","#1284BA,#38CED4,#F8A84E,#FFE288","linear","meshLobes","transition",0],["Summer","Summer Sunset Gradient","#48184E,#C4405C,#F8844E,#FFD88A","linear","meshLobes","transition",0],["Summer","Summer Vacation Gradient","#1284BA,#38CED4,#F8A84E,#FFE288","linear","meshLobes","transition",0],["Summer","Ocean Breeze Gradient","#08344E,#127692,#3EBCC2,#C0F2F2","linear","meshLobes","transition",0],["Summer","Citrus Summer Gradient","#1284BA,#38CED4,#F8A84E,#FFE288","linear","meshLobes","transition",0],["Summer","Summer Heat Gradient","#1284BA,#38CED4,#F8A84E,#FFE288","linear","meshLobes","transition",0],["Summer","Poolside Blue Gradient","#10306C,#2A70C0,#6CB8EA,#D6F0FE","linear","meshLobes","transition",0],["Summer","Tropical Palm Gradient","#0E74A8,#2CC6D0,#FAB04E,#FFEAA8","linear","meshLobes","transition",0],["Summer","Summer Paradise Gradient","#1284BA,#38CED4,#F8A84E,#FFE288","linear","meshLobes","transition",0],["Spring","Spring Blossom Gradient","#3E924E,#88CC76,#F6BCD0,#FCF2BA","linear","meshLobes","transition",0],["Spring","Spring Flower Gradient","#3E924E,#88CC76,#F6BCD0,#FCF2BA","linear","meshLobes","transition",0],["Spring","Spring Pastel Gradient","#9EC5A6,#C1E1BA,#F6D9E5,#F9F3DA","linear","meshLobes","transition",0],["Spring","Cherry Blossom Gradient","#3A8E4A,#88CC76,#F8BAD0,#FEF2C0","linear","meshLobes","transition",0],["Spring","Fresh Green Spring Gradient","#3E924E,#88CC76,#F6BCD0,#FCF2BA","linear","meshLobes","transition",0],["Spring","Spring Garden Gradient","#3E924E,#88CC76,#F6BCD0,#FCF2BA","linear","meshLobes","transition",0],["Spring","Spring Morning Gradient","#3E924E,#88CC76,#F6BCD0,#FCF2BA","linear","meshLobes","transition",0],["Spring","Botanical Spring Gradient","#3E924E,#88CC76,#F6BCD0,#FCF2BA","linear","meshLobes","transition",0],["Spring","Floral Meadow Gradient","#3A8E4A,#88CC76,#F8BAD0,#FEF2C0","linear","meshLobes","transition",0],["Spring","Spring Sunshine Gradient","#3E924E,#88CC76,#F6BCD0,#FCF2BA","linear","meshLobes","transition",0],["Autumn","Autumn Leaves Gradient","#702612,#BC4C1C,#E88A30,#F8CA6C","linear","meshLobes","transition",0],["Autumn","Fall Season Gradient","#6C2412,#BA4A1A,#E88A2E,#F8CC70","linear","meshLobes","transition",0],["Autumn","Autumn Orange Gradient","#702612,#BC4C1C,#E88A30,#F8CA6C","linear","meshLobes","transition",0],["Autumn","Golden Autumn Gradient","#7C5C24,#C49844,#EECC76,#FEF2C4","linear","meshLobes","transition",0],["Autumn","Rustic Autumn Gradient","#702612,#BC4C1C,#E88A30,#F8CA6C","linear","meshLobes","transition",0],["Autumn","Autumn Forest Gradient","#702612,#BC4C1C,#E88A30,#F8CA6C","linear","meshLobes","transition",0],["Autumn","Harvest Season Gradient","#6C2412,#BA4A1A,#E88A2E,#F8CC70","linear","meshLobes","transition",0],["Autumn","Cozy Fall Gradient","#6C2412,#BA4A1A,#E88A2E,#F8CC70","linear","meshLobes","transition",0],["Autumn","Autumn Sunset Gradient","#48184E,#C4405C,#F8844E,#FFD88A","linear","meshLobes","transition",0],["Autumn","Warm Earth Tone Gradient","#6C2412,#BA4A1A,#E88A2E,#F8CC70","linear","meshLobes","transition",0],["Winter","Winter Snow Gradient","#94B2D0,#C6DCF0,#E8F2FC,#FCFEFF","linear","meshLobes","transition",0],["Winter","Frozen Ice Gradient","#183662,#4C84BA,#A8D4F2,#F0F8FF","linear","meshLobes","transition",0],["Winter","Winter Blue Gradient","#1C3862,#4E80B2,#A4CEEE,#ECF6FF","linear","meshLobes","transition",0],["Winter","Frosty Morning Gradient","#587A98,#94B6D4,#CCE4F4,#F2FAFF","linear","meshLobes","transition",0],["Winter","Snowflake Gradient","#94B2D0,#C6DCF0,#E8F2FC,#FCFEFF","linear","meshLobes","transition",0],["Winter","Arctic Winter Gradient","#1C3862,#4E80B2,#A4CEEE,#ECF6FF","linear","meshLobes","transition",0],["Winter","Icy Crystal Gradient","#183662,#4C84BA,#A8D4F2,#F0F8FF","linear","panels","glass",0],["Winter","Winter Forest Gradient","#1C3862,#4E80B2,#A4CEEE,#ECF6FF","linear","meshLobes","transition",0],["Winter","Frozen Lake Gradient","#183662,#4C84BA,#A8D4F2,#F0F8FF","linear","meshLobes","transition",0],["Winter","Cozy Winter Gradient","#1C3862,#4E80B2,#A4CEEE,#ECF6FF","linear","meshLobes","transition",0],["Gaming & Esports","Gaming Neon Gradient","#0E0A2A,#00DAFF,#B826FF,#FF30B0","linear","streaks","glow",0],["Gaming & Esports","Esports Arena Gradient","#0C0A20,#00D4FF,#A822FF,#FF2698","linear","streaks","glow",0],["Gaming & Esports","Cyber Gaming Gradient","#0E0C30,#128EEE,#B02CF8,#FF44B8","linear","streaks","glow",0],["Gaming & Esports","RGB Gaming Gradient","#0E0A18,#F82258,#22E470,#2C80FF","linear","streaks","glow",0],["Gaming & Esports","Retro Arcade Gradient","#0C0A20,#00D4FF,#A822FF,#FF2698","linear","streaks","glow",0],["Gaming & Esports","Futuristic Game Gradient","#0C0A20,#00D4FF,#A822FF,#FF2698","linear","streaks","glow",0],["Gaming & Esports","Dark Gaming Gradient","#0C0A20,#00D4FF,#A822FF,#FF2698","linear","streaks","glow",0],["Gaming & Esports","Digital Battle Gradient","#0C0A20,#00D4FF,#A822FF,#FF2698","linear","streaks","glow",0],["Gaming & Esports","Gaming Stream Gradient","#0C0A20,#00D4FF,#A822FF,#FF2698","linear","streaks","glow",0],["Gaming & Esports","Virtual Reality Gradient","#0C0A20,#00D4FF,#A822FF,#FF2698","linear","streaks","glow",0],["Music Festival & Entertainment","Music Festival Gradient","#160C36,#9420C4,#F83E92,#38D4F8","linear","streaks","glow",0],["Music Festival & Entertainment","EDM Neon Gradient","#0E0A2A,#00DAFF,#B826FF,#FF30B0","linear","streaks","glow",0],["Music Festival & Entertainment","Concert Stage Gradient","#160C36,#9420C4,#F83E92,#38D4F8","linear","streaks","glow",0],["Music Festival & Entertainment","Music Wave Gradient","#160C36,#9420C4,#F83E92,#38D4F8","linear","waves","wave",0],["Music Festival & Entertainment","Audio Spectrum Gradient","#160C36,#9420C4,#F83E92,#38D4F8","linear","waves","wave",0],["Music Festival & Entertainment","DJ Party Gradient","#160C36,#9420C4,#F83E92,#38D4F8","linear","streaks","glow",0],["Music Festival & Entertainment","Festival Lights Gradient","#160C36,#9420C4,#F83E92,#38D4F8","radial","streaks","glow",0],["Music Festival & Entertainment","Sound Wave Gradient","#160C36,#9420C4,#F83E92,#38D4F8","linear","waves","wave",0],["Music Festival & Entertainment","Music Night Gradient","#160C36,#9420C4,#F83E92,#38D4F8","linear","streaks","glow",0],["Music Festival & Entertainment","Entertainment Gradient","#160C36,#9420C4,#F83E92,#38D4F8","linear","polygons","lighting",0],["Sports & Fitness","Sports Energy Gradient","#0E1C40,#DA3026,#F88E1C,#2AB280","linear","meshLobes","transition",0],["Sports & Fitness","Football Sports Gradient","#0E3A20,#227C3A,#7AC656,#ECF8D4","linear","meshLobes","transition",0],["Sports & Fitness","Cricket Sports Gradient","#0C442A,#1C8A4C,#CAAC3A,#F2F8DA","linear","meshLobes","transition",0],["Sports & Fitness","Basketball Gradient","#2A120C,#A83E12,#EE7622,#FCC26C","linear","meshLobes","transition",0],["Sports & Fitness","Tennis Sports Gradient","#0E1C40,#DA3026,#F88E1C,#2AB280","linear","meshLobes","transition",0],["Sports & Fitness","Fitness Motivation Gradient","#0E1C40,#DA3026,#F88E1C,#2AB280","linear","meshLobes","transition",0],["Sports & Fitness","Gym Workout Gradient","#0E1C40,#DA3026,#F88E1C,#2AB280","linear","meshLobes","transition",0],["Sports & Fitness","Running Sports Gradient","#0E1C40,#DA3026,#F88E1C,#2AB280","linear","meshLobes","transition",0],["Sports & Fitness","Olympic Sports Gradient","#0E1C40,#DA3026,#F88E1C,#2AB280","linear","meshLobes","transition",0],["Sports & Fitness","Extreme Sports Gradient","#0E1C40,#DA3026,#F88E1C,#2AB280","linear","meshLobes","transition",0],["Additional Commercial Collections","Luxury Black Gold Gradient","#0C0C10,#382C18,#C09440,#F8DA86","linear","meshLobes","transition",0],["Additional Commercial Collections","Artificial Intelligence Gradient","#0C1030,#2A4EC6,#8A40EE,#3EE0F8","linear","polygons","lighting",0],["Additional Commercial Collections","Corporate Business Gradient","#0E264E,#205694,#629ED0,#DEECF8","linear","meshLobes","transition",0],["Additional Commercial Collections","Medical Healthcare Gradient","#126286,#3AAEC6,#9CE4EA,#EEFAFC","linear","meshLobes","transition",0],["Additional Commercial Collections","Fintech Technology Gradient","#0A2044,#126284,#26B894,#BCF4DE","linear","polygons","lighting",0],["Additional Commercial Collections","Real Estate Gradient","#182C48,#56708A,#C6A66C,#F4EEE2","linear","meshLobes","transition",0],["Additional Commercial Collections","Automotive Racing Gradient","#0E1014,#343840,#C61C26,#DAE0E8","linear","meshLobes","transition",0],["Additional Commercial Collections","Food Beverage Gradient","#8E2A18,#E0622A,#F8B244,#FEEAB2","linear","meshLobes","transition",0],["Additional Commercial Collections","Fashion Beauty Gradient","#521C40,#BC547C,#EEAEBC,#FEECF0","linear","meshLobes","transition",0],["Additional Commercial Collections","Eco Sustainability Gradient","#104A2C,#34924E,#84CC7A,#E0F6D0","linear","polygons","lighting",0],["Luxury & Premium","Luxury Gold Gradient","#7C5C24,#C49844,#EECC76,#FEF2C4","linear","meshLobes","transition",0],["Luxury & Premium","Black Gold Gradient","#0C0C10,#382C18,#C09440,#F8DA86","linear","meshLobes","transition",0],["Luxury & Premium","Rose Gold Gradient","#8A4E4C,#CA867E,#ECBAB0,#FCE8E2","linear","meshLobes","transition",0],["Luxury & Premium","Platinum Silver Gradient","#626C7A,#9EA8B6,#D4DCE6,#F6F8FC","linear","meshLobes","transition",0],["Luxury & Premium","Champagne Gradient","#8A724E,#C6AE80,#ECDCBA,#FEF6E8","linear","meshLobes","transition",0],["Luxury & Premium","Diamond Shine Gradient","#181210,#8A6C38,#DABC76,#FAEECC","linear","diamonds","reflection",0],["Luxury & Premium","Metallic Bronze Gradient","#181210,#8A6C38,#DABC76,#FAEECC","linear","meshLobes","transition",0],["Luxury & Premium","Royal Velvet Gradient","#181210,#8A6C38,#DABC76,#FAEECC","linear","meshLobes","transition",0],["Luxury & Premium","Premium Pearl Gradient","#181210,#8A6C38,#DABC76,#FAEECC","linear","meshLobes","transition",0],["Luxury & Premium","Opulent Marble Gradient","#181210,#8A6C38,#DABC76,#FAEECC","linear","blobs","liquid",0],["Technology & AI","Artificial Intelligence Gradient","#0C1030,#2A4EC6,#8A40EE,#3EE0F8","linear","polygons","lighting",0],["Technology & AI","Neural Network Gradient","#0A1234,#205CD6,#7A3AEE,#30DEF8","linear","streaks","glow",0],["Technology & AI","Digital Future Gradient","#0A1234,#185CD0,#623AE4,#34E0F8","linear","streaks","glow",0],["Technology & AI","Quantum Technology Gradient","#0C0C2C,#3E22B2,#923EF2,#40E8FC","linear","polygons","lighting",0],["Technology & AI","Cyber Security Gradient","#08162A,#0E628A,#20CEBC,#A8F8EC","linear","streaks","glow",0],["Technology & AI","Data Flow Gradient","#0A1234,#185CD0,#623AE4,#34E0F8","linear","streaks","glow",0],["Technology & AI","Cloud Computing Gradient","#0A1234,#185CD0,#623AE4,#34E0F8","radial","streaks","glow",0],["Technology & AI","Blockchain Gradient","#0E183A,#2252B2,#764CDA,#56D0F2","linear","polygons","lighting",0],["Technology & AI","Robotics Gradient","#1C2430,#4C6684,#2CB2E0,#DAE8F4","linear","streaks","glow",0],["Technology & AI","Machine Learning Gradient","#0A1234,#185CD0,#623AE4,#34E0F8","linear","streaks","glow",0],["Medical & Healthcare","Medical Blue Gradient","#126286,#3AAEC6,#9CE4EA,#EEFAFC","linear","meshLobes","transition",0],["Medical & Healthcare","Healthcare Green Gradient","#105E5C,#30A892,#86DAC2,#E8FAF4","linear","meshLobes","transition",0],["Medical & Healthcare","DNA Helix Gradient","#0E4880,#24A2BC,#62E0D6,#E0FAF8","linear","ribbons","reflection",0],["Medical & Healthcare","Cellular Structure Gradient","#0E5880,#2AA8BA,#74DAD4,#EAFAFA","radial","spheres3d","lighting",0],["Medical & Healthcare","Wellness Gradient","#267662,#6CBC9E,#BAE8D0,#F0FAF4","linear","meshLobes","transition",0],["Medical & Healthcare","Pharmacy Gradient","#0E5880,#2AA8BA,#74DAD4,#EAFAFA","linear","meshLobes","transition",0],["Medical & Healthcare","Medical Technology Gradient","#126286,#3AAEC6,#9CE4EA,#EEFAFC","linear","polygons","lighting",0],["Medical & Healthcare","Healthcare Innovation Gradient","#105E5C,#30A892,#86DAC2,#E8FAF4","linear","meshLobes","transition",0],["Medical & Healthcare","Organic Science Gradient","#0E5880,#2AA8BA,#74DAD4,#EAFAFA","linear","meshLobes","transition",0],["Medical & Healthcare","Clinical Clean Gradient","#0E5880,#2AA8BA,#74DAD4,#EAFAFA","linear","meshLobes","transition",0],["Business & Corporate","Corporate Blue Gradient","#0E264E,#205694,#629ED0,#DEECF8","linear","meshLobes","transition",0],["Business & Corporate","Professional Business Gradient","#0E2652,#2060A4,#5EA2DA,#E2EEFA","linear","meshLobes","transition",0],["Business & Corporate","Startup Innovation Gradient","#0E2652,#2060A4,#5EA2DA,#E2EEFA","linear","meshLobes","transition",0],["Business & Corporate","Finance Gradient","#0E2652,#2060A4,#5EA2DA,#E2EEFA","linear","meshLobes","transition",0],["Business & Corporate","Banking Gradient","#0E2652,#2060A4,#5EA2DA,#E2EEFA","linear","meshLobes","transition",0],["Business & Corporate","Investment Gradient","#0E2652,#2060A4,#5EA2DA,#E2EEFA","linear","meshLobes","transition",0],["Business & Corporate","Marketing Gradient","#0E2652,#2060A4,#5EA2DA,#E2EEFA","linear","meshLobes","transition",0],["Business & Corporate","Enterprise Gradient","#0E2652,#2060A4,#5EA2DA,#E2EEFA","linear","meshLobes","transition",0],["Business & Corporate","Global Business Gradient","#0E2652,#2060A4,#5EA2DA,#E2EEFA","linear","meshLobes","transition",0],["Business & Corporate","Leadership Gradient","#0E2652,#2060A4,#5EA2DA,#E2EEFA","linear","meshLobes","transition",0],["Education & Learning","Academic Blue Gradient","#10306C,#2A70C0,#6CB8EA,#D6F0FE","linear","meshLobes","transition",0],["Education & Learning","Digital Education Gradient","#16387C,#3A86D4,#F4BC44,#E8F4FE","linear","meshLobes","transition",0],["Education & Learning","Knowledge Gradient","#16387C,#3A86D4,#F4BC44,#E8F4FE","linear","meshLobes","transition",0],["Education & Learning","E-Learning Gradient","#16387C,#3A86D4,#F4BC44,#E8F4FE","linear","meshLobes","transition",0],["Education & Learning","Science Education Gradient","#16387C,#3A86D4,#F4BC44,#E8F4FE","linear","meshLobes","transition",0],["Education & Learning","Creative Learning Gradient","#16387C,#3A86D4,#F4BC44,#E8F4FE","linear","meshLobes","transition",0],["Education & Learning","School Theme Gradient","#16387C,#3A86D4,#F4BC44,#E8F4FE","linear","meshLobes","transition",0],["Education & Learning","University Gradient","#16387C,#3A86D4,#F4BC44,#E8F4FE","linear","meshLobes","transition",0],["Education & Learning","Study Focus Gradient","#16387C,#3A86D4,#F4BC44,#E8F4FE","linear","meshLobes","transition",0],["Education & Learning","Modern Classroom Gradient","#16387C,#3A86D4,#F4BC44,#E8F4FE","linear","meshLobes","transition",0],["Travel & Tourism","Tropical Travel Gradient","#12769E,#38BAC4,#F4A856,#FCEABA","linear","meshLobes","transition",0],["Travel & Tourism","Mountain Adventure Gradient","#12769E,#38BAC4,#F4A856,#FCEABA","linear","polygons","lighting",0],["Travel & Tourism","Beach Vacation Gradient","#12769E,#38BAC4,#F4A856,#FCEABA","linear","meshLobes","transition",0],["Travel & Tourism","Desert Travel Gradient","#12769E,#38BAC4,#F4A856,#FCEABA","linear","meshLobes","transition",0],["Travel & Tourism","Island Paradise Gradient","#12769E,#38BAC4,#F4A856,#FCEABA","linear","meshLobes","transition",0],["Travel & Tourism","Luxury Resort Gradient","#12769E,#38BAC4,#F4A856,#FCEABA","linear","meshLobes","transition",0],["Travel & Tourism","City Travel Gradient","#12769E,#38BAC4,#F4A856,#FCEABA","linear","meshLobes","transition",0],["Travel & Tourism","Nature Exploration Gradient","#12769E,#38BAC4,#F4A856,#FCEABA","linear","meshLobes","transition",0],["Travel & Tourism","Aerial Landscape Gradient","#12769E,#38BAC4,#F4A856,#FCEABA","linear","meshLobes","transition",0],["Travel & Tourism","World Tourism Gradient","#12769E,#38BAC4,#F4A856,#FCEABA","linear","meshLobes","transition",0],["Food & Beverage","Fresh Fruit Gradient","#883018,#E47030,#F8BC4E,#FEEEC4","linear","meshLobes","transition",0],["Food & Beverage","Citrus Splash Gradient","#883018,#E47030,#F8BC4E,#FEEEC4","linear","blobs","liquid",0],["Food & Beverage","Coffee Brown Gradient","#2C1810,#603824,#A2704C,#E4C6A8","linear","meshLobes","transition",0],["Food & Beverage","Chocolate Gradient","#26140E,#583020,#945C3E,#DAB28E","linear","meshLobes","transition",0],["Food & Beverage","Strawberry Cream Gradient","#B02648,#EA6080,#FAB2C2,#FFECF2","linear","meshLobes","transition",0],["Food & Beverage","Tropical Juice Gradient","#883018,#E47030,#F8BC4E,#FEEEC4","linear","meshLobes","transition",0],["Food & Beverage","Organic Food Gradient","#8E2A18,#E0622A,#F8B244,#FEEAB2","linear","meshLobes","transition",0],["Food & Beverage","Bakery Cream Gradient","#A87644,#D8A870,#F4DAB2,#FEF6E4","linear","meshLobes","transition",0],["Food & Beverage","Sweet Dessert Gradient","#883018,#E47030,#F8BC4E,#FEEEC4","linear","meshLobes","transition",0],["Food & Beverage","Healthy Nutrition Gradient","#883018,#E47030,#F8BC4E,#FEEEC4","linear","meshLobes","transition",0],["Fashion & Beauty","Fashion Editorial Gradient","#521C40,#BC547C,#EEAEBC,#FEECF0","linear","meshLobes","transition",0],["Fashion & Beauty","Cosmetics Pink Gradient","#B04070,#EA7CA8,#FABAD6,#FFEAF4","linear","meshLobes","transition",0],["Fashion & Beauty","Beauty Salon Gradient","#843058,#D46A8E,#F4BAC6,#FEECF2","linear","meshLobes","transition",0],["Fashion & Beauty","Skincare Gradient","#B8887A,#E0B8AC,#F4DCD2,#FEF6F2","linear","meshLobes","transition",0],["Fashion & Beauty","Makeup Glamour Gradient","#843058,#D46A8E,#F4BAC6,#FEECF2","linear","meshLobes","transition",0],["Fashion & Beauty","Perfume Luxury Gradient","#401C38,#A87462,#E4C294,#FCF2DE","linear","meshLobes","transition",0],["Fashion & Beauty","Fashion Runway Gradient","#521C40,#BC547C,#EEAEBC,#FEECF0","linear","meshLobes","transition",0],["Fashion & Beauty","Elegant Fabric Gradient","#843058,#D46A8E,#F4BAC6,#FEECF2","linear","meshLobes","transition",0],["Fashion & Beauty","Nail Art Gradient","#843058,#D46A8E,#F4BAC6,#FEECF2","linear","polygons","lighting",0],["Fashion & Beauty","Modern Lifestyle Gradient","#843058,#D46A8E,#F4BAC6,#FEECF2","linear","meshLobes","transition",0],["Nature & Environment","Earth Tone Gradient","#124E30,#369456,#86CC80,#E0F6D0","linear","meshLobes","transition",0],["Nature & Environment","Eco Green Gradient","#104A2C,#34924E,#84CC7A,#E0F6D0","linear","meshLobes","transition",0],["Nature & Environment","Renewable Energy Gradient","#0E5C48,#2CA87C,#80DA98,#E8F8E0","linear","meshLobes","transition",0],["Nature & Environment","Sustainable Future Gradient","#124E30,#369456,#86CC80,#E0F6D0","linear","polygons","lighting",0],["Nature & Environment","Forest Conservation Gradient","#124E30,#369456,#86CC80,#E0F6D0","linear","meshLobes","transition",0],["Nature & Environment","Ocean Protection Gradient","#08344E,#127692,#3EBCC2,#C0F2F2","linear","meshLobes","transition",0],["Nature & Environment","Natural Landscape Gradient","#124E30,#369456,#86CC80,#E0F6D0","linear","meshLobes","transition",0],["Nature & Environment","Botanical Texture Gradient","#124E30,#369456,#86CC80,#E0F6D0","linear","meshLobes","transition",0],["Nature & Environment","Desert Nature Gradient","#124E30,#369456,#86CC80,#E0F6D0","linear","meshLobes","transition",0],["Nature & Environment","Climate Awareness Gradient","#124E30,#369456,#86CC80,#E0F6D0","linear","meshLobes","transition",0],["Special Creative Collections","Abstract Smoke Gradient","#1C1240,#942ABA,#F85C8E,#44E0E4","radial","blurShells","blur",0],["Special Creative Collections","Liquid Marble Gradient","#1C1240,#942ABA,#F85C8E,#44E0E4","linear","blobs","liquid",0],["Special Creative Collections","3D Sphere Gradient","#1C1240,#942ABA,#F85C8E,#44E0E4","radial","spheres3d","lighting",0],["Special Creative Collections","Optical Illusion Gradient","#1C1240,#942ABA,#F85C8E,#44E0E4","linear","mixedOrgGeo","shadow",0],["Special Creative Collections","Psychedelic Gradient","#9418A8,#F63E80,#FCC430,#2CDAC6","radial","spiralArcs","glow",0],["Special Creative Collections","Retro Vintage Gradient","#1C1240,#942ABA,#F85C8E,#44E0E4","linear","meshLobes","transition",0],["Special Creative Collections","Memphis Design Gradient","#F24A7A,#FACC3A,#2EC6D6,#38368A","linear","mixedOrgGeo","shadow",0],["Special Creative Collections","Y2K Aesthetic Gradient","#80B2F8,#E08EF2,#F8BADE,#C6F6F8","linear","ribbons","reflection",0],["Special Creative Collections","Futuristic Holographic Gradient","#1C1240,#942ABA,#F85C8E,#44E0E4","linear","meshLobes","transition",0],["Special Creative Collections","Experimental Color Fusion Gradient","#1C1240,#942ABA,#F85C8E,#44E0E4","linear","meshLobes","mesh",0]],CONC=[["Minimal Color Horizon","Minimal","linear","horizon","transition"],["Organic Flow Composition","Fluid","linear","blobs","organic"],["Abstract Liquid Layers","Fluid","radial","blobs","liquid"],["Diagonal Color Architecture","Architectural","linear","bands","lighting"],["Soft Radial Atmosphere","Atmospheric","radial","blurShells","glow"],["Dynamic Mesh Field","Mesh","linear","meshLobes","mesh"],["Luxury Metallic Surface","Material","linear","ribbons","metallic"],["Aurora Color Environment","Atmospheric","linear","curtains","glow"],["Geometric Color Blocks","Geometric","linear","panels","shadow"],["Fluid Organic Waves","Fluid","linear","waves","wave"],["Multidirectional Light","Light","radial","streaks","lighting"],["Deep Space Color Field","Atmospheric","radial","orbs","glow"],["Translucent Glass Layers","Material","linear","panels","glass"],["Abstract Circular Motion","Geometric","radial","rings","reflection"],["Soft Atmospheric Clouds","Atmospheric","linear","clouds","blur"],["Layered Polygon Surface","Geometric","linear","facets","shadow"],["Holographic Color Field","Light","linear","meshLobes","reflection"],["Modern Corporate Gradient","Commercial","linear","bands","transition"],["Experimental Color Geometry","Experimental","radial","mixedExp","overlay"],["Premium Editorial Background","Minimal","linear","colorFields","grain"],["Asymmetric Color Drift","Minimal","linear","veils","transition"],["Central Solar Bloom","Light","radial","orbs","glow"],["Offset Radial Halo","Light","radial","blurShells","glow"],["Silk Ribbon Architecture","Fluid","linear","ribbons","wave"],["Organic Contour Topography","Organic","linear","waves","organic"],["Diagonal Prism Corridor","Light","linear","streaks","reflection"],["Concentric Orbital Rings","Geometric","radial","rings","lighting"],["Layered Elliptical Mist","Atmospheric","radial","orbs","blur"],["Polygonal Prism Atmosphere","Geometric","linear","polygons","glass"],["Minimal Two-Tone Horizon","Minimal","linear","horizon","transition"],["Gradient Archipelago","Organic","linear","blobs","liquid"],["Luminous Color Corridor","Light","linear","panels","lighting"],["Curved Twilight Horizon","Atmospheric","linear","waves","glow"],["Floating Color Islands","Organic","radial","blobs","overlay"],["Intersecting Wave Currents","Fluid","linear","waves","wave"],["Nested Architectural Frames","Geometric","linear","panels","shadow"],["Frosted Acrylic Panels","Material","linear","panels","glass"],["Prismatic Spectrum Fold","Light","linear","ribbons","reflection"],["Velvet Nocturne Glow","Dark","radial","meshLobes","glow"],["Liquid Chrome Ripples","Material","linear","waves","metallic"],["Sunlit Dune Terraces","Organic","linear","terraces","grain"],["Cybernetic Light Grid","Futuristic","linear","streaks","halftone"],["Pastel Morning Veil","Minimal","linear","veils","blur"],["Bioluminescent Tide","Fluid","radial","blobs","glow"],["Crystalline Shard Field","Geometric","linear","facets","reflection"],["Amber Dusk Reflections","Atmospheric","linear","horizon","lighting"],["Nordic Ice Refraction","Material","linear","facets","glass"],["Satin Wave Cascades","Fluid","linear","waves","transition"],["Kinetic Spiral Vortex","Geometric","radial","spiralArcs","glow"],["Muted Earth Strata","Organic","linear","terraces","grain"],["Radiant Diamond Facets","Geometric","radial","diamonds","reflection"],["Subtle Paper Grain Field","Minimal","linear","colorFields","grain"],["Iridescent Pearl Waves","Material","radial","ribbons","reflection"],["Deep Ocean Trench","Fluid","linear","waves","liquid"],["Neon Laser Horizon","Light","linear","streaks","glow"],["Soft Bokeh Constellation","Light","radial","bokeh","glow"],["Art Deco Sunburst","Geometric","radial","wedges","metallic"],["Botanical Dew Drops","Organic","radial","spheres3d","liquid"],["Vaporwave Pastel Grid","Retro","linear","horizon","halftone"],["Obsidian Gold Foil","Luxury","linear","ribbons","metallic"],["Frosted Emerald Mist","Atmospheric","radial","clouds","glass"],["Magnetic Field Arcs","Futuristic","radial","spiralArcs","lighting"],["Minimalist Bauhaus Arcs","Geometric","linear","mixedOrgGeo","shadow"],["Tropical Lagoon Ripples","Fluid","radial","rings","liquid"],["Warm Terracotta Curves","Organic","linear","waves","organic"],["Quantum Prism Beams","Light","linear","streaks","lighting"],["Pearlescent Cloud Drift","Atmospheric","linear","clouds","blur"],["Liquid Mercury Pools","Material","radial","blobs","metallic"],["Atmospheric Horizon Haze","Minimal","linear","horizon","blur"],["Faceted Sapphire Crown","Geometric","radial","facets","glass"],["Soft Rosewater Veils","Pastel","linear","veils","transition"],["Electric Plasma Current","Light","linear","ribbons","glow"],["Retro Halftone Sunset","Retro","linear","horizon","halftone"],["Monolith Shadow Planes","Minimal","linear","panels","shadow"],["Floating Glass Spheres","3D","radial","spheres3d","glass"],["Alpine Dawn Mist","Atmospheric","linear","terraces","blur"],["Polygonal Mosaic Wave","Geometric","linear","polygons","overlay"],["Velvet Plum Aurora","Dark","linear","curtains","glow"],["Brushed Titanium Bands","Material","linear","bands","metallic"],["Coral Reef Currents","Fluid","linear","ribbons","liquid"],["Celestial Eclipse Halo","Light","radial","rings","glow"],["Soft Lavender Drift","Pastel","radial","meshLobes","blur"],["Geometric Origami Fold","Geometric","linear","facets","shadow"],["Midnight Neon Reflections","Dark","linear","streaks","reflection"],["Zen Pebble Contours","Organic","radial","blobs","organic"],["Chromatic Aberration Wave","Experimental","linear","waves","reflection"],["Golden Hour Bokeh","Light","radial","bokeh","glow"],["Minimalist Silk Fold","Minimal","linear","ribbons","transition"],["Abstract Solar Flares","Light","radial","wedges","glow"],["Deep Forest Canopy Mist","Organic","linear","clouds","organic"],["Futuristic HUD Rings","Futuristic","radial","rings","lighting"],["Warm Sand & Sage Waves","Organic","linear","waves","grain"],["Liquid Amber Flow","Fluid","linear","blobs","liquid"],["Iridescent Soap Film","Experimental","radial","meshLobes","reflection"],["High-Contrast Editorial Cut","Commercial","linear","panels","shadow"],["Soft Peach Bloom","Pastel","radial","blurShells","blur"],["Stepped Canyon Strata","Organic","linear","terraces","grain"],["Starlight Prism Rain","Light","linear","streaks","glow"],["Sculpted 3D Orbs","3D","radial","spheres3d","lighting"],["Subsurface Pearl Glow","Material","radial","blurShells","reflection"],["Urban Night Light Trails","Dark","linear","ribbons","glow"],["Organic Seed Geometry","Experimental","radial","mixedOrgGeo","organic"],["Nordic Dawn Minimal","Minimal","linear","colorFields","transition"],["Prism Diamond Cascade","Geometric","linear","diamonds","glass"],["Infinite Wave Horizon","Fluid","linear","waves","wave"]],ENG=[["Smooth Linear Gradient","linear","colorFields","transition","Soft Ambient Light","Smooth Noise"],["Radial Glow Gradient","radial","orbs","glow","Radial Light","Soft Dust"],["Freeform Gradient","linear","meshLobes","blur","Diffused Light","Organic Texture"],["Abstract Mesh Gradient","linear","meshLobes","mesh","Multi-Point Lighting","Smooth Noise"],["Organic Fluid Gradient","radial","blobs","liquid","Soft Ambient Light","Liquid Surface"],["Flowing Liquid Gradient","linear","ribbons","liquid","Subtle Highlight","Liquid Surface"],["Soft Blur Gradient","radial","blurShells","blur","Diffused Light","Paper Texture"],["Fine Grain Gradient","linear","horizon","grain","Directional Light","Fine Film Grain"],["Glassmorphism Gradient","linear","panels","glass","Edge Lighting","Frosted Glass"],["3D Depth Gradient","radial","spheres3d","lighting","Cinematic Lighting","Micro Texture"],["Metallic Gradient","linear","bands","metallic","Metallic Reflection","Metallic Texture"],["Holographic Gradient","linear","meshLobes","reflection","Edge Lighting","Liquid Surface"],["Aurora Gradient","linear","curtains","glow","Neon Glow","Soft Dust"],["Atmospheric Gradient","linear","clouds","blur","Soft Ambient Light","Soft Dust"],["Geometric Gradient","linear","polygons","shadow","Directional Light","Micro Texture"],["Organic Wave Gradient","linear","waves","wave","Subtle Highlight","Subtle Fabric Texture"],["Fluid Ribbon Gradient","linear","ribbons","wave","Multi-Point Lighting","Smooth Noise"],["Multidimensional Gradient","radial","mixedOrgGeo","layer","Cinematic Lighting","Micro Texture"],["Minimal Color Field Gradient","linear","colorFields","transition","Soft Ambient Light","Paper Texture"],["Experimental Color Fusion Gradient","radial","mixedExp","reflection","Neon Glow","Organic Texture"],["Liquid Glass Wave","linear","glassRibbon","sculpt","Cinematic Lighting","Smooth Noise","Futuristic"],["Sculpted Glass Ribbon","radial","glassRibbon","sculpt","Edge Lighting","Liquid Surface","Ocean"],["Volumetric Silk Fold","linear","silkFold","silk","Multi-Point Lighting","Smooth Noise","Tropical"],["Satin Mesh Wave","radial","silkFold","silk","Subtle Highlight","Smooth Noise","Vibrant"]],HARM=["Complementary","Analogous","Triadic","Split Complementary","Tetradic","Monochromatic","Warm and Cool Contrast","Pastel Harmony","Luxury Metallic Harmony","Deep Dark Harmony","Neon Harmony","Earth Tone Harmony","Natural Color Harmony","High Contrast Harmony","Soft Neutral Harmony"],LIGHTS=["Soft Ambient Light","Directional Light","Radial Light","Edge Lighting","Diffused Light","Neon Glow","Metallic Reflection","Subtle Highlight","Cinematic Lighting","Multi-Point Lighting"],TEXS=["Fine Film Grain","Smooth Noise","Paper Texture","Soft Dust","Subtle Fabric Texture","Metallic Texture","Frosted Glass","Liquid Surface","Micro Texture","Organic Texture"],COMPN=["Center Focus","Off-Center","Diagonal Flow","Horizontal Flow","Vertical Flow","Asymmetric","Radial","Organic","Layered","Geometric","Minimal","Abstract","Edge-to-Edge","Dynamic Flow","Balanced Negative Space"],COMPS=[[.5,.5,.6,null],[.3,.4,.8,null],[.5,.5,1.2,.5],[.5,.5,1.2,0],[.5,.5,1.2,1.5708],[.7,.35,1,null],[.5,.5,.5,null],[.5,.5,1.1,null],[.5,.5,1,.1],[.5,.5,1,-.3],[.5,.5,.4,null],[.5,.5,1.3,null],[.5,.5,1.6,null],[.5,.5,1.2,-.6],[.2,.5,.5,null]];
+const HOFF={"Complementary":[0,180],"Analogous":[0,30,-30,60],"Triadic":[0,120,240],"Split Complementary":[0,150,210],"Tetradic":[0,90,180,270],"Monochromatic":[0],"Warm and Cool Contrast":[20,200,40,220],"High Contrast Harmony":[0,180]};
+const HCOL={"Pastel Harmony":"Pastel","Luxury Metallic Harmony":"Luxury","Deep Dark Harmony":"Dark Premium","Neon Harmony":"Neon","Earth Tone Harmony":"Earth Tone","Natural Color Harmony":"Tropical","Soft Neutral Harmony":"Soft Neutral"};
+function adjHex(hx,sat,con,hueShift){
+ if(sat===100&&con===100&&!hueShift)return hx;
+ const n=parseInt(hx.slice(1),16),r=((n>>16)&255)/255,g=((n>>8)&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b);
+ let h=0,s=0,l=(mx+mn)/2,d=mx-mn;
+ if(d){s=l>.5?d/(2-mx-mn):d/(mx+mn);h=(mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4)*60}
+ return hsl(h+(hueShift||0),clamp(s*100*sat/100,0,100),clamp((l*100-50)*con/100+50,2,98))}
+function fitStops(arr,n){
+ if(!n||arr.length===n)return arr;
+ if(arr.length>n)return Array.from({length:n},(_,i)=>arr[Math.round(i*(arr.length-1)/(n-1))]);
+ const out=[];for(let i=0;i<n;i++){const u=i/(n-1)*(arr.length-1),j=Math.min(arr.length-2,u|0);out.push(mixHex(arr[j],arr[j+1],u-j))}return out}
+function palette(st,o){
+ const raw=o.hex.match(/#?(?:[0-9a-f]{6}|[0-9a-f]{3})\b/gi);
+ if(raw&&raw.length){
+  let base=raw.map(v=>{v=v.replace("#","").toUpperCase();return"#"+(v.length===3?v[0]+v[0]+v[1]+v[1]+v[2]+v[2]:v)});
+  if(base.length===1){const h1=base[0];base=[adjHex(h1,100,72),h1,adjHex(h1,115,118),mixHex(h1,"#FFFFFF",.35)]}
+  return base.map(v=>adjHex(v,o.sat,o.con))}
+ const r=rng(o.seed),H=o.harm,off=HOFF[H];
+ if(/^[tn]:/.test(o.col)){
+  const i=+o.col.slice(2),rawArr=(o.col[0]==="t"?THEMES[i][1]:COLL[i][2]).split(",");
+  const shift=(o.seed!==20261112?(r()-.5)*14:0),res=fitStops(rawArr,o.stops);
+  return res.map((v,idx)=>adjHex(v,o.sat,o.con,shift+(off?off[idx%off.length]*.25:0)))}
+ const sp=SPEC[(o.col==="auto"?(HCOL[H]||st.col):o.col)]||SPEC.Vibrant,out=[],n=o.stops,[a,b]=sp.h[(r()*sp.h.length)|0],h0=a+(b-a)*r();
+ for(let i=0;i<n;i++){let h=h0;if(off)h+=off[i%off.length]+r()*10;else{const[p,q]=sp.h[(r()*sp.h.length)|0];h=p+(q-p)*r()}
+  let s=sp.s[0]+(sp.s[1]-sp.s[0])*r(),l=sp.l[0]+(sp.l[1]-sp.l[0])*r();
+  if(H==="Monochromatic")l=sp.l[0]+(sp.l[1]-sp.l[0])*i/(n-1);if(H==="High Contrast Harmony")l=i%2?sp.l[1]:sp.l[0];
+  s=clamp(s*o.sat/100,0,100);l=clamp((l-50)*o.con/100+50,2,98);out.push([l,hsl(h,s,l)])}
+ out.sort((p,q)=>q[0]-p[0]);return out.map(v=>v[1])}
+
+function draw(cv,w,h,st,o){
+ cv.width=w;cv.height=h;
+ const x=cv.getContext("2d",{willReadFrequently:true})||cv.getContext("2d"),m=Math.min(w,h),pal=palette(st,o),r=rng(o.seed+7),R=(a,b)=>a+(b-a)*r(),P=()=>pal[(r()*pal.length)|0],g=GROUP[st.shape],T=6.2832,C=COMPS[o.comp]||[.5,.5,1,null],px=()=>w*clamp(C[0]+(r()-.5)*C[2],-.1,1.1),py=()=>h*clamp(C[1]+(r()-.5)*C[2],-.1,1.1);
+ const setF=v=>{try{x.filter=v}catch(e){}};
+ const lin=(x0,y0,x1,y1,s)=>{const q=x.createLinearGradient(x0,y0,x1,y1);s.forEach(([t,c])=>q.addColorStop(t,c));return q};
+ const glow=(cx,cy,rad,c,a)=>{const q=x.createRadialGradient(cx,cy,0,cx,cy,rad);q.addColorStop(0,rgba(c,a));q.addColorStop(.42,rgba(c,a*.58));q.addColorStop(.75,rgba(c,a*.18));q.addColorStop(1,rgba(c,0));x.fillStyle=q;x.fillRect(cx-rad,cy-rad,rad*2,rad*2)};
+ let q;
+ if(st.bg==="radial")q=x.createRadialGradient(w*R(.3,.7),h*R(.3,.7),0,w/2,h/2,Math.hypot(w,h)*.65);
+ else{const a=R(0,T),d=Math.abs(Math.cos(a))*w/2+Math.abs(Math.sin(a))*h/2;q=x.createLinearGradient(w/2-Math.cos(a)*d,h/2-Math.sin(a)*d,w/2+Math.cos(a)*d,h/2+Math.sin(a)*d)}
+ smoothStops(q,pal);x.fillStyle=q;x.fillRect(0,0,w,h);
+
+ if(g==="lobes"){const bk=st.shape==="bokeh",sph=st.shape==="spheres3d",n=Math.round(R(6,10))*(bk?2:1);
+  for(let i=0;i<n;i++){const cx=px(),cy=py();
+   if(bk){const far=i<n*.45,rad=m*(far?R(.045,.13):R(.025,.085));x.save();setF(far?`blur(${Math.max(2,Math.round(m*.008))}px)`:"none");
+    const bq=x.createRadialGradient(cx,cy,rad*.15,cx,cy,rad),bc=P();bq.addColorStop(0,rgba(bc,far?.18:.24));bq.addColorStop(.82,rgba(bc,far?.28:.42));bq.addColorStop(1,"rgba(255,255,255,.45)");
+    x.fillStyle=bq;x.beginPath();x.arc(cx,cy,rad,0,T);x.fill();setF("none");x.restore()}
+   else if(sph){const rad=m*R(.12,.34),c1=P(),c2=P();
+    x.save();x.shadowColor="rgba(0,0,0,.38)";x.shadowBlur=rad*.45;x.shadowOffsetX=rad*.1;x.shadowOffsetY=rad*.18;
+    const sq=x.createRadialGradient(cx-rad*.32,cy-rad*.32,rad*.05,cx,cy,rad);sq.addColorStop(0,"#ffffff");sq.addColorStop(.28,c1);sq.addColorStop(.88,c2);sq.addColorStop(1,"rgba(0,0,0,.65)");
+    x.fillStyle=sq;x.beginPath();x.arc(cx,cy,rad,0,T);x.fill();x.restore();
+    glow(cx-rad*.36,cy-rad*.36,rad*.45,"#ffffff",.42);
+    x.save();x.strokeStyle="rgba(255,255,255,.32)";x.lineWidth=Math.max(1,m*.002);x.beginPath();x.arc(cx,cy,rad*.96,-2.5,-.7);x.stroke();x.restore()}
+   else{const rad=m*R(.26,.65),sx=R(.85,1.55),sy=R(.65,1.25),rot=R(-.8,.8),blurAmt=Math.max(4,Math.round(m*(i<n/2?.045:.022)));
+    x.save();x.translate(cx,cy);x.rotate(rot);x.scale(sx,sy);setF(`blur(${blurAmt}px)`);
+    if(i%3===1)x.globalCompositeOperation="screen";
+    glow(0,0,rad,P(),R(.5,.9));setF("none");x.restore()}}}
+ else if(g==="waves"){x.save();x.translate(w/2,h/2);x.rotate(C[3]!=null?C[3]:st.shape==="curtains"?1.5708:st.shape==="ribbons"?R(-.5,.5):0);x.translate(-w/2,-h/2);
+  const n=Math.round(R(5,7)),E=Math.max(w,h),step=Math.max(12,E/64);
+  for(let i=0;i<n;i++){const y0=h*(.16+.76*i/n),A=m*R(.045,.16),f=R(.75,1.9),ph=R(0,6.28),c=P(),c2=P(),c3=P();
+   const pts=[];for(let t=-E;t<=2*E;t+=step)pts.push([t,y0+Math.sin(t/w*T*f+ph)*A+Math.sin(t/w*13*f+ph*1.7)*A*.28]);
+   const trace=()=>{x.beginPath();x.moveTo(pts[0][0],pts[0][1]);for(let k=1;k<pts.length-1;k++){const mx=(pts[k][0]+pts[k+1][0])/2,my=(pts[k][1]+pts[k+1][1])/2;x.quadraticCurveTo(pts[k][0],pts[k][1],mx,my)}x.lineTo(pts[pts.length-1][0],pts[pts.length-1][1])};
+   x.save();x.shadowColor="rgba(0,0,0,.32)";x.shadowBlur=m*.035;x.shadowOffsetY=m*.012;
+   trace();x.lineTo(2*E,2*E);x.lineTo(-E,2*E);x.closePath();
+   x.fillStyle=lin(0,y0-A,0,y0+m*.55,[[0,rgba(c,.95)],[.45,rgba(c2,.72)],[1,rgba(c3,.28)]]);x.fill();x.restore();
+   x.save();trace();x.strokeStyle="rgba(255,255,255,.32)";x.lineWidth=Math.max(1,m*.0028);x.stroke();x.restore()}x.restore()}
+ else if(g==="bands"){x.save();x.translate(w/2,h/2);x.rotate(C[3]!=null?C[3]:["panels","colorFields"].includes(st.shape)?0:R(-.6,.6));x.translate(-w/2,-h/2);
+  const n=Math.round(R(4,8)),soft=st.shape==="veils"||st.shape==="bands",E=Math.max(w,h);
+  for(let i=0;i<n;i++){const y=-E*.3+E*1.6*i/n,hh=E*1.6/n*R(.8,1.5),c=P(),c2=P(),a=soft?0:.9,b=soft?.55:.9;x.fillStyle=lin(0,y,0,y+hh,[[0,rgba(c,a)],[.5,rgba(c,b)],[1,rgba(c2,a)]]);x.fillRect(-E,y,3*E,hh)}x.restore()}
+ else if(g==="wedges"&&x.createConicGradient){const cg=x.createConicGradient(R(0,6.28),w*R(.35,.65),h*R(.35,.65));pal.forEach((c,i)=>cg.addColorStop(i/pal.length,c));cg.addColorStop(1,pal[0]);x.globalAlpha=.9;x.fillStyle=cg;x.fillRect(0,0,w,h);x.globalAlpha=1}
+ else if(g==="facets"){const n=Math.round(R(10,18)),dia=st.shape==="diamonds";for(let i=0;i<n;i++){const cx=px(),cy=py(),s=m*R(.15,.5),a=R(0,6.28),k=dia?4:3+((r()*2)|0);x.beginPath();
+  for(let j=0;j<k;j++){const t=a+j*T/k;x[j?"lineTo":"moveTo"](cx+Math.cos(t)*s,cy+Math.sin(t)*s*(dia?.7:1))}x.closePath();
+  x.save();x.shadowColor="rgba(0,0,0,.22)";x.shadowBlur=m*.02;x.fillStyle=lin(cx-s,cy-s,cx+s,cy+s,[[0,rgba(P(),.78)],[1,rgba(P(),.14)]]);x.fill();
+  x.strokeStyle="rgba(255,255,255,.16)";x.lineWidth=Math.max(1,m*.0014);x.stroke();x.restore()}}
+ else if(g==="horizon"){const hy=h*R(.55,.7);glow(w*R(.3,.7),hy,m*.85,P(),.92);glow(w/2,hy,m*.45,"#fff4d6",.62);
+  for(let i=0;i<3;i++){const y=hy+(h-hy)*i/3;x.fillStyle=lin(0,y,0,h,[[0,rgba(P(),.65)],[1,rgba(pal[pal.length-1],.92)]]);x.fillRect(0,y,w,h-y)}}
+ else if(g==="streaks"){x.save();x.globalCompositeOperation="screen";x.lineCap="round";const n=Math.round(R(14,24));
+  for(let i=0;i<n;i++){const cx=w*R(-.1,1.1),cy=h*r(),L=m*R(.4,1.4),a=-.7+R(-.1,.1),c=P(),ex=cx+Math.cos(a)*L,ey=cy+Math.sin(a)*L;x.lineWidth=m*R(.004,.035);x.strokeStyle=lin(cx,cy,ex,ey,[[0,rgba(c,0)],[.5,rgba(c,.85)],[1,rgba(c,0)]]);x.beginPath();x.moveTo(cx,cy);x.lineTo(ex,ey);x.stroke()}x.restore()}
+ else if(g==="rings"){const cx=w*R(.3,.7),cy=h*R(.3,.7);for(let i=1;i<=9;i++){x.strokeStyle=rgba(P(),.55);x.lineWidth=m*R(.012,.05);x.beginPath();x.arc(cx,cy,m*i*.1,0,T);x.stroke()}}
+ else if(g==="glassRibbon"){
+  const c0=pal[0],c1=pal[1%pal.length],c2=pal[Math.min(2,pal.length-1)],c3=pal[pal.length-1],darkC=mixHex(c3,"#020416",.68);
+  x.save();x.fillStyle=lin(0,0,w,h,[[0,mixHex(c0,"#FFFFFF",.72)],[.5,mixHex(c1,"#F5F7FD",.76)],[1,mixHex(c2,"#EAEEF9",.58)]]);x.fillRect(0,0,w,h);
+  glow(w*R(.48,.66),h*R(.0,.15),m*.92,mixHex(c0,"#FFF082",.68),.94);
+  glow(w*R(.06,.24),h*R(.05,.22),m*.72,"#FFFFFF",.65);
+  const tr=(pts,mv)=>{pts.forEach((p,idx)=>{if(idx===0){if(mv)x.moveTo(p[0],p[1])}else{const pr=pts[idx-1];x.quadraticCurveTo(pr[0],pr[1],(pr[0]+p[0])/2,(pr[1]+p[1])/2)}});const l=pts[pts.length-1];x.lineTo(l[0],l[1])};
+  x.translate(w/2,h/2);x.rotate(C[3]!=null?C[3]:R(-.12,.06));x.translate(-w/2,-h/2);
+  const N=72,folds=[
+   {yb:.42,a1:.22,f1:4.2,p1:.4+R(-.25,.25),s:.24,th:.16,ta:.22,tp:.6,fillBot:false,al:.88,cols:[c1,c2,c3]},
+   {yb:.56,a1:.26,f1:3.6,p1:1.15+R(-.25,.25),s:.40,th:.14,ta:.32,tp:1.35,fillBot:true,al:.98,cols:[c0,c1,c3]},
+   {yb:.58,a1:.14,f1:4.8,p1:2.3+R(-.25,.25),s:.22,th:.07,ta:.18,tp:.95,fillBot:false,al:.62,cols:[mixHex(c0,"#FFFFFF",.38),c1,c2]}
+  ];
+  const bLg=Math.min(48,Math.max(4,Math.round(m*.036))),bSm=Math.min(22,Math.max(2,Math.round(m*.014)));
+  folds.forEach((fd,fi)=>{
+   const top=[],bot=[],mid=[];
+   for(let i=0;i<=N;i++){
+    const u=i/N,yc=h*(fd.yb+fd.a1*Math.sin(u*fd.f1+fd.p1)+.065*Math.cos(u*7.1+fd.p1*1.4)-fd.s*(u-.42));
+    const tw=m*(fd.th+fd.ta*Math.pow(Math.sin(u*2.8+fd.tp),2)),ty=yc-tw*.52,by=fd.fillBot?Math.max(h*1.2,yc+tw*1.85):yc+tw*.95;
+    top.push([w*(-.12+1.24*u),ty]);bot.push([w*(-.12+1.24*u),by]);mid.push([w*(-.12+1.24*u),ty+(by-ty)*.32]);
+   }
+   const bBot=bot.slice().reverse(),closeRibbon=()=>{x.beginPath();tr(top,true);tr(bBot,false);x.closePath()};
+   x.save();x.globalAlpha=fd.al;x.shadowColor=rgba(darkC,fi===1?.48:.3);x.shadowBlur=m*(fi===1?.048:.03);x.shadowOffsetY=m*.012;
+   closeRibbon();x.fillStyle=lin(0,h*.12,w,h*.95,[[0,fd.cols[0]],[.48,fd.cols[1]],[1,fd.cols[2]]]);x.fill();x.restore();
+   x.save();x.globalAlpha=fd.al;closeRibbon();x.clip();
+   glow(w*R(.12,.38),h*R(.35,.78),m*.58,mixHex(fd.cols[0],"#FFFFFF",.25),.74);
+   glow(w*R(.66,.94),h*R(.14,.55),m*.62,c2,.74);
+   x.save();x.globalCompositeOperation="multiply";setF(`blur(${bLg}px)`);x.beginPath();tr(mid,true);x.lineWidth=m*(fi===1?.12:.07);
+   x.strokeStyle=lin(0,h*.2,w,h*.8,[[0,rgba(darkC,.2)],[.45,rgba(darkC,.82)],[1,rgba(darkC,.45)]]);x.lineCap="round";x.stroke();setF("none");x.restore();
+   x.save();x.globalCompositeOperation="screen";setF(`blur(${bSm}px)`);x.beginPath();tr(top,true);x.lineWidth=m*.032;
+   x.strokeStyle=lin(0,0,w,0,[[0,rgba(c0,.15)],[.4,"rgba(255,255,255,.55)"],[.85,rgba(c0,.55)],[1,"rgba(255,255,255,.15)"]]);x.stroke();setF("none");x.restore();
+   x.restore();
+   x.save();x.beginPath();tr(top,true);x.lineWidth=Math.max(1,m*(fi===2?.0018:.0024));
+   x.strokeStyle=lin(0,0,w,0,[[0,"rgba(255,255,255,.16)"],[.3,"rgba(255,255,255,.9)"],[.72,"rgba(255,255,255,.8)"],[1,"rgba(255,255,255,.15)"]]);x.stroke();x.restore();
+  });
+  x.restore();
+ }
+ else if(g==="silkFold"){
+  const c0=pal[0],c1=pal[1%pal.length],c2=pal[Math.min(2,pal.length-1)],c3=pal[pal.length-1];
+  const warm=mixHex(c0,"#FFE68A",.55),cols=[c0,c1,mixHex(c1,c2,.5),c2,c3],E=Math.max(w,h),N=64,bGl=Math.min(40,Math.max(4,Math.round(m*.028))),bEd=Math.min(10,Math.max(2,Math.round(m*.005)));
+  const tr=(pts,mv)=>{pts.forEach((p,idx)=>{if(idx===0){if(mv)x.moveTo(p[0],p[1])}else{const pr=pts[idx-1];x.quadraticCurveTo(pr[0],pr[1],(pr[0]+p[0])/2,(pr[1]+p[1])/2)}});const l=pts[pts.length-1];x.lineTo(l[0],l[1])};
+  x.save();x.fillStyle=lin(0,0,w,h,[[0,c0],[.5,c1],[1,c2]]);x.fillRect(0,0,w,h);
+  x.translate(w/2,h/2);x.rotate(C[3]!=null?C[3]:R(-.08,.08));x.translate(-w/2,-h/2);
+  for(let i=0;i<5;i++){
+   const yb=h*(.06+.185*i),amp=m*R(.08,.135),f=R(.8,1.15),ph=i*.85+R(-.2,.2),tilt=(i%2?-.14:-.08)*h,pts=[];
+   for(let k=0;k<=N;k++){const u=k/N,xp=w*(-.14+1.28*u),yy=yb+(u-.5)*tilt+Math.sin(u*3.3*f+ph)*amp+Math.cos(u*1.9*f+ph*.6)*amp*.35;pts.push([xp,yy])}
+   const ca=cols[i%cols.length],cb=cols[(i+1)%cols.length],rimC=mixHex(ca,warm,.58),dk=mixHex(c3,"#041208",.48);
+   const closeWave=()=>{x.beginPath();tr(pts,true);x.lineTo(w*1.25,h*1.35);x.lineTo(-w*.25,h*1.35);x.closePath()};
+   x.save();x.shadowColor=rgba(dk,.42);x.shadowBlur=m*.055;x.shadowOffsetY=-m*.014;
+   closeWave();x.fillStyle=lin(0,yb-amp,w,yb+h*.42,[[0,ca],[.52,cb],[1,c3]]);x.fill();x.restore();
+   x.save();closeWave();x.clip();
+   glow(w*R(.08,.44),yb+h*R(.05,.22),E*.52,ca,.82);
+   glow(w*R(.52,.94),yb+h*R(.02,.2),E*.48,rimC,.74);
+   glow(w*R(.25,.75),yb+h*R(.16,.44),E*.56,cb,.72);
+   x.save();x.globalCompositeOperation="screen";setF(`blur(${bGl}px)`);x.beginPath();tr(pts,true);x.lineWidth=m*.065;
+   x.strokeStyle=lin(0,0,w,0,[[0,rgba(rimC,.48)],[.45,"rgba(255,250,210,.72)"],[.85,rgba(warm,.65)],[1,rgba(rimC,.25)]]);x.stroke();setF("none");x.restore();
+   x.restore();
+   x.save();setF(`blur(${bEd}px)`);x.beginPath();tr(pts,true);x.lineWidth=Math.max(1.2,m*.0028);
+   x.strokeStyle=lin(0,0,w,0,[[0,rgba(rimC,.45)],[.42,"rgba(255,252,226,.78)"],[.78,rgba(warm,.78)],[1,rgba(rimC,.25)]]);x.stroke();setF("none");x.restore();
+  }
+  x.restore();
+ }
+
+ const fx=st.fx;
+ const L=o.light>=0?o.light:(st.light>=0?st.light:-1),W="#ffffff",lit=(cx,cy,rad,c,a)=>{x.save();x.globalCompositeOperation="screen";glow(cx,cy,rad,c,a);x.restore()},vig=a=>{const v=x.createRadialGradient(w/2,h/2,m*.28,w/2,h/2,Math.hypot(w,h)*.62);v.addColorStop(0,"rgba(0,0,0,0)");v.addColorStop(1,`rgba(0,0,0,${a})`);x.fillStyle=v;x.fillRect(0,0,w,h)};
+ if(L<0){if(fx==="lighting"||fx==="glow")lit(w*R(.2,.8),h*R(0,.4),m*.9,W,.4)}
+ else[()=>lit(w/2,h*.35,m,W,.32),()=>lit(w*R(0,.3),0,Math.hypot(w,h)*.8,W,.45),()=>lit(w/2,h/2,m*.7,W,.45),()=>{lit(0,h/2,m*.6,W,.32);lit(w,h/2,m*.6,W,.32)},()=>lit(w/2,h/2,m*1.4,W,.28),()=>lit(w*R(.2,.8),h*R(.2,.8),m*.7,P(),.8),()=>{x.fillStyle=lin(0,0,w,h,[[0,"rgba(255,255,255,0)"],[.3,"rgba(255,255,255,.38)"],[.5,"rgba(255,255,255,0)"],[.72,"rgba(0,0,0,.28)"],[1,"rgba(255,255,255,.18)"]]);x.fillRect(0,0,w,h)},()=>lit(w*R(.3,.7),h*R(.2,.5),m*.25,W,.55),()=>{lit(w*.8,h*.2,m*.9,"#ffd9a8",.52);vig(.36)},()=>{for(let i=0;i<3;i++)lit(w*r(),h*r(),m*.5,P(),.5)}][L]();
+ if(fx==="glass"){let snap=null;try{snap=document.createElement("canvas");snap.width=w;snap.height=h;snap.getContext("2d").drawImage(cv,0,0)}catch(e){snap=null}
+  for(let i=0;i<3;i++){const pw=w*R(.22,.4),ph=h*R(.4,.75),px=w*R(.05,.65),py=h*R(.1,.25),rr=m*.03;
+   const cardPath=()=>{x.beginPath();x.roundRect?x.roundRect(px,py,pw,ph,rr):x.rect(px,py,pw,ph)};
+   x.save();x.shadowColor="rgba(0,0,0,.3)";x.shadowBlur=m*.04;x.shadowOffsetY=m*.015;x.fillStyle="rgba(255,255,255,.06)";cardPath();x.fill();x.restore();
+   x.save();cardPath();x.clip();
+   if(snap){setF(`blur(${Math.min(48,Math.max(4,Math.round(m*.018)))}px) brightness(1.1) saturate(1.18)`);x.drawImage(snap,0,0);setF("none")}
+   x.fillStyle=lin(px,py,px+pw,py+ph,[[0,"rgba(255,255,255,.24)"],[.5,"rgba(255,255,255,.08)"],[1,"rgba(255,255,255,.03)"]]);x.fillRect(px,py,pw,ph);x.restore();
+   x.save();cardPath();x.strokeStyle=lin(px,py,px+pw,py+ph,[[0,"rgba(255,255,255,.65)"],[.6,"rgba(255,255,255,.18)"],[1,"rgba(255,255,255,.42)"]]);x.lineWidth=Math.max(1,m*.003);x.stroke();x.restore()}}
+ if(fx==="metallic"||fx==="reflection"){
+  x.save();x.globalCompositeOperation="overlay";x.fillStyle=lin(0,0,w,h,[[0,"rgba(255,255,255,0)"],[.22,"rgba(255,255,255,.32)"],[.36,"rgba(120,210,255,.18)"],[.5,"rgba(255,255,255,.06)"],[.68,"rgba(255,170,235,.18)"],[.82,"rgba(0,0,0,.28)"],[1,"rgba(255,255,255,.18)"]]);x.fillRect(0,0,w,h);x.restore()}
+ if(fx==="halftone"){const s=Math.max(8,m/38);x.fillStyle="rgba(255,255,255,.16)";for(let yy=0;yy<h;yy+=s)for(let xx=0;xx<w;xx+=s){x.beginPath();x.arc(xx,yy,s*.36*(yy/h),0,T);x.fill()}}
+ vig(fx==="shadow"?.38:.14);
+ const tx=o.tex>=0?o.tex:(st.tex>=0?st.tex:-1),TX=[[1,1],[2.2,.72],[2.6,1,"multiply"],[1.2,.8],[1.4,1],[.8,1],[1.6,.9],[2,.6],[.6,1],[1.8,.9]][tx]||[1,1],nz=(fx==="grain"?Math.max(o.noise,55):o.noise)*TX[1]+(st.z||0);
+ if(nz>0){const ts=512,t=document.createElement("canvas");t.width=t.height=ts;const tc=t.getContext("2d"),id=tc.createImageData(ts,ts),nr=rng(o.seed+3);
+  for(let i=0;i<id.data.length;i+=4){const v=((nr()+nr())*.5)*255;id.data[i]=id.data[i+1]=id.data[i+2]=v;id.data[i+3]=255}
+  tc.putImageData(id,0,0);const s=Math.max(1,m/4800)*TX[0];x.save();x.scale(s,s);x.globalAlpha=clamp(nz,0,100)/100*.42;x.globalCompositeOperation=TX[2]||"overlay";
+  const pat=x.createPattern(t,"repeat");if(pat){x.fillStyle=pat;x.fillRect(0,0,w/s,h/s)}x.restore()}
+ if(tx===3){x.fillStyle="rgba(255,255,255,.55)";for(let i=0;i<m*.6;i++){const d=m*.0012*(1+r()*3);x.fillRect(w*r(),h*r(),d,d)}}
+ if(tx===4){x.strokeStyle="rgba(0,0,0,.07)";x.lineWidth=Math.max(1,m/800);const q=m/110;x.beginPath();for(let t=0;t<w;t+=q){x.moveTo(t,0);x.lineTo(t,h)}for(let t=0;t<h;t+=q){x.moveTo(0,t);x.lineTo(w,t)}x.stroke()}
+ if(tx===6){x.fillStyle="rgba(255,255,255,.14)";x.fillRect(0,0,w,h)}
+ return pal}
+
+/* ---------- interface & Luminous Atelier theme/accent engine ---------- */
+const opt=(v,t)=>`<option value="${v}">${t}</option>`,optg=(l,a)=>`<optgroup label="${l}">${a.join("")}</optgroup>`;
+const by=(arr,key,f)=>{const g={};arr.forEach((e,i)=>(g[key(e)]=g[key(e)]||[]).push(f(e,i)));return Object.entries(g)};
+const COLMAP={Minimal:"Minimal",Fluid:"Ocean",Material:"Metallic",Atmospheric:"Futuristic",Light:"Dark Premium",Geometric:"Futuristic"};
+const DES=STYLES.slice();
+CONC.forEach(([n,c,bg,shape,fx])=>DES.push({n,c:"Concept: "+c,bg,shape,fx,col:COLMAP[c]||"Vibrant"}));
+ENG.forEach(([n,bg,shape,fx,lg,tx,col])=>DES.push({n,c:"Core engines",bg,shape,fx,col:col||"Vibrant",light:LIGHTS.indexOf(lg),tex:TEXS.indexOf(tx)}));
+function fillStyleAndCol(q){
+ const sq=(q||"").trim().toLowerCase(),curS=$("#style").value,curC=$("#col").value;
+ const fDes=DES.map((s,i)=>[s,i]).filter(([s])=>!sq||s.n.toLowerCase().includes(sq)||s.c.toLowerCase().includes(sq));
+ $("#style").innerHTML=opt("random","Random design")+by(fDes,([s])=>s.c,([s,i])=>opt(i,s.n)).map(([c,a])=>optg(c,a)).join("");
+ const fTh=THEMES.map((t,i)=>[t,i]).filter(([t])=>!sq||t[0].toLowerCase().includes(sq));
+ const fCo=COLL.map((c,i)=>[c,i]).filter(([c])=>!sq||c[0].toLowerCase().includes(sq)||c[1].toLowerCase().includes(sq));
+ const fSp=Object.keys(SPEC).filter(n=>!sq||n.toLowerCase().includes(sq));
+ $("#col").innerHTML=opt("auto","Matched to design")+(fSp.length?optg("Collections",fSp.map(n=>opt(n,n))):"")+(fTh.length?optg("Curated themes",fTh.map(([t,i])=>opt("t:"+i,t[0]))):"")+by(fCo,([c])=>"Niche: "+c[0],([c,i])=>opt("n:"+i,c[1])).map(([c,a])=>optg(c,a)).join("");
+ if([...$("#style").options].some(o=>o.value===curS))$("#style").value=curS;
+ if([...$("#col").options].some(o=>o.value===curC))$("#col").value=curC;
+}
+fillStyleAndCol("");
+const auto=a=>opt(-1,"Auto")+a.map((n,i)=>opt(i,n)).join("");
+$("#comp").innerHTML=auto(COMPN);$("#harm").innerHTML=auto(HARM);$("#light").innerHTML=auto(LIGHTS);$("#tex").innerHTML=auto(TEXS);
+$("#ratio").innerHTML=RATIOS.map(([l,w,h],i)=>opt(i,l+" ("+w+"×"+h+")")).join("")+opt(-1,"Custom size");
+$("#size").innerHTML=SIZES.map(([l,v])=>opt(v,l+(v?" ("+v+" px)":""))).join("");
+const aurIdx=DES.findIndex(s=>s.n==="Aurora");$("#style").value=aurIdx>=0?aurIdx:"random";
+
+/* ---------- Studio tab: transform, glass (4 params), pattern overlay (1000) ---------- */
+const ADV=[["Transform",[["zoom","Zoom",100,300,100],["rot","Rotate °",-180,180,0],["blur","Soft blur",0,60,0],["hue","Hue shift",-180,180,0]]],
+ ["Glass effect",[["gN","Glass panels",0,5,0],["gBlur","Frost blur",0,60,24],["gOp","Tint opacity",0,60,18],["gRad","Roundness",0,30,4]]],
+ ["Pattern overlay (1000)",[["pat","Pattern # (0 = off)",0,1000,0],["pOp","Pattern opacity",5,100,35],["pSz","Pattern size",20,100,50]]]];
+const ADVK=ADV.flatMap(([,a])=>a.map(q=>"a_"+q[0]));
+$("#p4").innerHTML=ADV.map(([t,a])=>'<div class="grp"><div class="grp-head">'+t+'</div>'+a.map(([k,l,mn,mx,v])=>'<label class="fld"><span class="f-row">'+l+'<b class="val" id="v-a_'+k+'">'+v+'</b></span><input id="a_'+k+'" type="range" min="'+mn+'" max="'+mx+'" value="'+v+'"></label>').join("")+'</div>').join("")+'<button id="advRand" type="button">Randomize studio</button>';
+const advVals=()=>{const g=i=>+($("#a_"+i)?.value||0);return{zoom:g("zoom")||100,rot:g("rot"),blur:g("blur"),hue:g("hue"),gN:g("gN"),gBlur:g("gBlur"),gOp:g("gOp"),gRad:g("gRad"),pat:g("pat"),pOp:g("pOp")||35,pSz:g("pSz")||50}};
+const rrect=(x,a,b,w,h,r)=>{x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()};
+function advPattern(x,w,h,m,a){
+ const n=a.pat-1,ty=n%10,v=(n/10)|0,d=8+(v%10)*3.2,c=Math.max(m/d*a.pSz/50,m/90),L=Math.hypot(w,h)/2,s=c*.38;
+ x.save();x.globalAlpha=a.pOp/100;x.translate(w/2,h/2);x.rotate(((v/10)|0)*Math.PI/10+(ty===3?.7854:0));
+ x.strokeStyle=x.fillStyle=v%2?"rgb(255,255,255)":"rgb(18,18,28)";x.lineWidth=Math.max(1,c*.07);
+ const G=f=>{for(let j=-L;j<=L;j+=c)for(let i=-L;i<=L;i+=c)f(i,j)},ln=(p,q,u,z)=>{x.beginPath();x.moveTo(p,q);x.lineTo(u,z);x.stroke()};
+ if(ty===0)G((i,j)=>{x.beginPath();x.arc(i,j,c*.16,0,6.2832);x.fill()});
+ else if(ty===1)for(let i=-L;i<=L;i+=c)ln(i,-L,i,L);
+ else if(ty===2||ty===3)for(let i=-L;i<=L;i+=c){ln(i,-L,i,L);ln(-L,i,L,i)}
+ else if(ty===4)for(let r=c;r<=L*1.5;r+=c){x.beginPath();x.arc(0,0,r,0,6.2832);x.stroke()}
+ else if(ty===5)for(let j=-L;j<=L;j+=c){x.beginPath();for(let i=-L;i<=L;i+=c/4)x.lineTo(i,j+Math.sin(i/c*2.2)*c*.3);x.stroke()}
+ else if(ty===6)G((i,j)=>{x.beginPath();x.moveTo(i,j-s);x.lineTo(i+s,j);x.lineTo(i,j+s);x.lineTo(i-s,j);x.closePath();x.stroke()});
+ else if(ty===7)G((i,j)=>{x.beginPath();x.moveTo(i-s,j-s/2);x.lineTo(i,j+s/2);x.lineTo(i+s,j-s/2);x.stroke()});
+ else if(ty===8){let k=0;for(let j=-L;j<=L;j+=c*.866,k++)for(let i=-L+(k%2)*c/2;i<=L;i+=c){x.beginPath();x.arc(i,j,c*.5,0,6.2832);x.stroke()}}
+ else G((i,j)=>{ln(i-s/2,j,i+s/2,j);ln(i,j-s/2,i,j+s/2)});
+ x.restore()}
+function advPost(cv,w,h,a,seed){
+ const x=cv.getContext("2d"),m=Math.min(w,h),snap=src=>{const t=document.createElement("canvas");t.width=w;t.height=h;t.getContext("2d").drawImage(src,0,0);return t};
+ if(a.zoom!==100||a.rot||a.blur||a.hue){
+  const t=snap(cv),th=a.rot*Math.PI/180,k=(Math.abs(Math.cos(th))+Math.max(w/h,h/w)*Math.abs(Math.sin(th)))*a.zoom/100*(1+a.blur*.004);
+  x.save();x.clearRect(0,0,w,h);try{x.filter="blur("+(a.blur*m/1000)+"px) hue-rotate("+a.hue+"deg)"}catch(e){}
+  x.translate(w/2,h/2);x.rotate(th);x.scale(k,k);x.drawImage(t,-w/2,-h/2);x.restore()}
+ if(a.gN>0){
+  const t=snap(cv),b=document.createElement("canvas");b.width=w;b.height=h;const bx=b.getContext("2d");
+  try{bx.filter="blur("+(a.gBlur*m/500)+"px)"}catch(e){}bx.drawImage(t,0,0);
+  const r=rng(seed+99),R=(p,q)=>p+(q-p)*r(),rad=m*a.gRad/100;
+  for(let i=0;i<a.gN;i++){const pw=w*R(.22,.4),ph=h*R(.4,.75),px=w*R(.05,.65),py=h*R(.1,.25),rr=Math.min(rad,pw/2,ph/2);
+   x.save();x.beginPath();rrect(x,px,py,pw,ph,rr);x.clip();x.drawImage(b,0,0);x.fillStyle="rgba(255,255,255,"+a.gOp/100+")";x.fillRect(px,py,pw,ph);x.restore();
+   x.save();x.beginPath();rrect(x,px,py,pw,ph,rr);x.strokeStyle="rgba(255,255,255,.45)";x.lineWidth=Math.max(1,m*.003);x.stroke();x.restore()}}
+ if(a.pat>0)advPattern(x,w,h,m,a)}
+{const _d=draw;draw=function(cv,w,h,st,o){const p=_d(cv,w,h,st,o),a=o&&o.adv;if(a)try{advPost(cv,w,h,a,o.seed)}catch(e){}return p}}
+const galOpts=()=>({seed:20261112,col:$("#col").value,hex:$("#hex").value,stops:+$("#stops").value,sat:100,con:100,noise:18,harm:"Auto",comp:-1,light:-1,tex:-1});
+try{$("#styleSearch").placeholder="Search "+DES.length+" styles, concepts, engines..."}catch(e){}
+const KEYS=["style","comp","col","harm","hex","stops","light","tex","noise","sat","con","ratio","cw","ch","size","ppi","minmb","maxmb","prefix","seed","count","bfmt",...ADVK];
+try{const sv=JSON.parse(localStorage.getItem("ri-gs")||"{}");KEYS.forEach(k=>{const el=$("#"+k);if(!el||sv[k]==null)return;if(el.tagName==="SELECT"){if([...el.options].some(o=>o.value===String(sv[k])))el.value=sv[k]}else el.value=sv[k]})}catch(e){}
+const save=()=>{try{localStorage.setItem("ri-gs",JSON.stringify(Object.fromEntries(KEYS.map(k=>[k,$("#"+k).value]))))}catch(e){}};
+const opts=s=>({seed:s||Math.max(1,+$("#seed").value||1),col:$("#col").value,hex:$("#hex").value,stops:+$("#stops").value,sat:+$("#sat").value,con:+$("#con").value,noise:+$("#noise").value,harm:HARM[+$("#harm").value]||"Auto",comp:+$("#comp").value,light:+$("#light").value,tex:+$("#tex").value,adv:advVals()});
+function curStyle(o){const v=$("#style").value;if(v==="random"&&/^n:/.test(o.col)){const c=COLL[+o.col.slice(2)];if(c)return{n:c[1],c:c[0],bg:c[3],shape:c[4],fx:c[5],col:"Vibrant",z:c[6]}}return v==="random"?DES[Math.floor(rng(o.seed)()*DES.length)]:(DES[+v]||STYLES[0])}
+const gcd=(a,b)=>b?gcd(b,a%b):a;
+const ratioTxt=(w,h)=>{const g=gcd(w,h),rw=Math.round(w/g),rh=Math.round(h/g);return rw<=24&&rh<=24?rw+":"+rh:(w/h).toFixed(2)+":1"};
+const dims=()=>{const v=+$("#ratio").value;if(v<0)return[clamp(Math.round(+$("#cw").value||5000),256,12000),clamp(Math.round(+$("#ch").value||3000),256,12000)];const row=RATIOS[v]||RATIOS[0];return[row[1],row[2]]};
+const target=()=>{const[w,h]=dims(),ls=+$("#size").value,k=ls?ls/Math.max(w,h):1;return[Math.round(w*k),Math.round(h*k)]};
+function fitStageCanvas(w,h){
+ const cv=$("#cv"),sg=$("#stage"),fr=$("#frame");if(!cv||!cv.style)return;
+ const vw=sg?.dataset?.view||"canvas";
+ if(vw==="phone"||vw==="laptop"){cv.style.aspectRatio="";cv.style.width="";cv.style.height="";return}
+ cv.style.aspectRatio=w+" / "+h;
+ if(vw==="poster"){cv.style.width="";cv.style.height="";return}
+ const aw=(fr?.clientWidth>40?fr.clientWidth:(sg?.clientWidth?sg.clientWidth-40:0)),ah=(fr?.clientHeight>40?fr.clientHeight:(sg?.clientHeight?sg.clientHeight-40:0));
+ if(aw>40&&ah>40){
+  const s=Math.min(aw/w,ah/h);
+  cv.style.width=Math.max(1,Math.floor(w*s))+"px";
+  cv.style.height=Math.max(1,Math.floor(h*s))+"px";
+ }else{cv.style.width="";cv.style.height=""}
+}
+
+function hexLum(hx){const n=parseInt(hx.slice(1),16),lin=c=>{c/=255;return c<=.03928?c/12.92:Math.pow((c+.055)/1.055,2.4)};return .2126*lin((n>>16)&255)+.7152*lin((n>>8)&255)+.0722*lin(n&255)}
+function applyAdaptiveAccent(pal){
+ if(!pal||!pal.length)return;
+ const isDark=document.documentElement.dataset.theme!=="light";
+ let best=pal[0],bestScore=-1;
+ for(const hx of pal){
+  const n=parseInt(hx.slice(1),16),r=(n>>16)&255,g=(n>>8)&255,b=n&255,sat=Math.max(r,g,b)-Math.min(r,g,b);
+  if(sat>bestScore){bestScore=sat;best=hx}
+ }
+ const n=parseInt(best.slice(1),16),r=((n>>16)&255)/255,g=((n>>8)&255)/255,b=(n&255)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b);
+ let h=0,s=0,l=(mx+mn)/2,d=mx-mn;
+ if(d){s=l>.5?d/(2-mx-mn):d/(mx+mn);h=(mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4)*60}
+ let safeS=clamp(Math.max(s*100,42),36,88),safeL=isDark?clamp(l*100,58,76):clamp(l*100,22,38);
+ let acc=hsl(h,safeS,safeL);
+ for(let k=0;k<8;k++){
+  const lum=hexLum(acc);
+  if(isDark){if(lum>=.24)break;safeL=Math.min(92,safeL+5)}
+  else{if(lum<=.15)break;safeL=Math.max(12,safeL-4)}
+  acc=hsl(h,safeS,safeL);
+ }
+ const onacc=hexLum(acc)>.185?"#14110e":"#fcf9f3";
+ try{
+  const rs=document.documentElement.style;
+  if(rs?.setProperty){
+   rs.setProperty("--acc",acc);rs.setProperty("--onacc",onacc);
+   rs.setProperty("--g1",pal[0]||acc);rs.setProperty("--g2",pal[Math.min(1,pal.length-1)]||acc);rs.setProperty("--g3",pal[pal.length-1]||acc);
+  }
+ }catch(e){}
+}
+
+let raf;
+function updateStyleCard(st,o){
+ if($("#styleName"))$("#styleName").textContent=st.n||"Gallery";
+ if($("#styleCat"))$("#styleCat").textContent=(st.c||"Browse")+" · "+DES.length+" styles";
+ const th=$("#styleThumb");
+ if(th&&o){try{draw(th,76,56,st,o)}catch(e){}}
+}
+function render(){cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{
+ const[w,h]=target(),o=opts(),st=curStyle(o),k=(window.__fast?900:1400)/Math.max(w,h),cv=$("#cv");
+ cv?.classList?.add?.("swap");
+ const pal=draw(cv,Math.max(1,Math.round(w*k)),Math.max(1,Math.round(h*k)),st,o);
+ fitStageCanvas(w,h);
+ setTimeout(()=>cv?.classList?.remove?.("swap"),170);
+ const amb=$("#amb");
+ if(amb){try{const ax=amb.getContext("2d");ax&&ax.drawImage(cv,0,0,amb.width||64,amb.height||64)}catch(e){}}
+ applyAdaptiveAccent(pal);
+ updateStyleCard(st,o);
+ $("#cap").textContent=st.n+" · "+w+"×"+h+" ("+ratioTxt(w,h)+", "+(w*h/1e6).toFixed(1)+" MP)";
+ if($("#expResLbl"))$("#expResLbl").textContent=w+"×"+h+" px";
+ if($("#qbadge"))$("#qbadge").textContent=($("#ppi")?.value||300)+" DPI · Grain "+o.noise+"% · JPG "+($("#minmb")?.value||4)+"-"+($("#maxmb")?.value||20)+" MB";
+ $("#chips").innerHTML=pal.map(c=>'<i data-c="'+c+'" style="background:'+c+'" title="Click to copy '+c+' · Shift+Click to add"></i>').join("");
+})}
+
+/* Lazy Searchable Style Gallery Popover */
+(()=>{
+ const pop=$("#stylePop"),grid=$("#styleGrid"),srch=$("#styleSearch"),btn=$("#styleCard");
+ if(!pop||!grid||!btn)return;
+ let built=false;
+ const io=typeof IntersectionObserver!=="undefined"?new IntersectionObserver(entries=>{
+  for(const en of entries){
+   if(!en.isIntersecting)continue;
+   const el=en.target,cv=el.querySelector("canvas");
+   if(cv&&!cv.dataset.ok){cv.dataset.ok="1";const st=DES[+el.dataset.idx];if(st)try{draw(cv,96,64,st,galOpts())}catch(e){}}
+   io.unobserve(el);
+  }
+ },{root:grid,rootMargin:"80px"}):null;
+ function populate(q){
+  const sq=(q||"").trim().toLowerCase(),cur=$("#style").value;
+  grid.innerHTML="";
+  DES.forEach((st,i)=>{
+   if(sq&&!st.n.toLowerCase().includes(sq)&&!(st.c||"").toLowerCase().includes(sq))return;
+   const b=document.createElement("button");b.type="button";b.className="st-item"+(String(i)===cur?" active":"");b.dataset.idx=i;
+   b.innerHTML='<canvas width="96" height="64"></canvas><span>'+st.n+'</span>';
+   b.onclick=()=>{
+    $("#style").value=String(i);
+    if($("#style").value!==String(i)){$("#find").value="";fillStyleAndCol("");$("#style").value=String(i)}
+    save();render();close();say("Style: "+st.n);
+   };
+   grid.append(b);
+   if(io)io.observe(b);else{try{draw(b.querySelector("canvas"),96,64,st,galOpts())}catch(e){}}
+  });
+  built=true;
+ }
+ function open(){pop.hidden=false;btn.setAttribute("aria-expanded","true");populate(srch.value);srch.focus()}
+ function close(){pop.hidden=true;btn.setAttribute("aria-expanded","false")}
+ btn.addEventListener("click",()=>pop.hidden?open():close());
+ $("#styleClose")?.addEventListener("click",close);
+ srch?.addEventListener("input",()=>populate(srch.value));
+ document.addEventListener("click",e=>{if(!pop.hidden&&!pop.contains(e.target)&&!btn.contains(e.target))close()});
+ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!pop.hidden)close()});
+})();
+
+$("#chips")?.addEventListener?.("click",e=>{const c=e.target?.dataset?.c;if(!c)return;try{navigator.clipboard?.writeText?.(c)}catch(err){}if(e.shiftKey){const cur=$("#hex").value.split(/[\s,;]+/).map(x=>x.trim().toUpperCase()).filter(Boolean);if(!cur.includes(c))cur.push(c);$("#hex").value=cur.join(", ");save();render();say("Added "+c+" to custom colors.")}else say("Copied "+c+" (Shift+Click to add)")});
+$("#cpick")?.addEventListener?.("input",e=>{const c=String(e.target.value||"").toUpperCase();if(!c)return;const cur=$("#hex").value.split(/[\s,;]+/).map(x=>x.trim().toUpperCase()).filter(Boolean);if(!cur.includes(c))cur.push(c);$("#hex").value=cur.join(", ");save();render();say("Added "+c+" to custom colors.")});
+$("#col")?.addEventListener?.("change",()=>{if($("#hex").value){$("#hex").value="";save();render()}});
+$("#view")?.addEventListener?.("change",e=>{const sg=$("#stage");if(!sg)return;sg.dataset.view=e.target.value;if(e.target.value!=="canvas")setZoom(1,0,0);const[w,h]=target();fitStageCanvas(w,h)});
+if(typeof ResizeObserver!=="undefined"&&$("#stage"))new ResizeObserver(()=>{const[w,h]=target();fitStageCanvas(w,h)}).observe($("#stage"));
+else if(typeof window!=="undefined")window.addEventListener?.("resize",()=>{const[w,h]=target();fitStageCanvas(w,h)});
+(()=>{const sg=$("#stage"),fr=$("#frame"),zb=$("#zoom"),zl=$("#zlbl");
+ let z=1,px=0,py=0,drag=null;
+ window.setZoom=(nz,nx,ny)=>{z=clamp(nz,.4,6);if(Math.abs(z-1)<.02){z=1;px=0;py=0}else if(nx!=null){px=nx;py=ny}
+  if(fr&&fr.style)fr.style.transform="translate("+px.toFixed(1)+"px,"+py.toFixed(1)+"px) scale("+z.toFixed(3)+")";
+  if(sg){sg.dataset.zoom=z.toFixed(2);sg.classList?.toggle?.("zoomed",z!==1)}
+  const pct=z===1?"Fit":Math.round(z*100)+"%";
+  if(zl)zl.textContent=pct;
+  const zsp=zb?.querySelector?.("span");if(zsp)zsp.textContent=z===1?"Zoom 100%":"Zoom "+pct;
+  zb?.classList?.toggle?.("on",z!==1)};
+ zb?.addEventListener?.("click",()=>setZoom(z>1.05?1:2.5,0,0));
+ $("#zin")?.addEventListener?.("click",()=>setZoom(z*1.25));
+ $("#zout")?.addEventListener?.("click",()=>setZoom(z/1.25));
+ $("#zfit")?.addEventListener?.("click",()=>setZoom(1,0,0));
+ if(!sg?.addEventListener)return;
+ sg.addEventListener("wheel",e=>{if(e.target?.closest?.(".zhud"))return;e.preventDefault();
+  const rect=sg.getBoundingClientRect?.(),nz=clamp(z*(e.deltaY<0?1.14:1/1.14),.4,6);
+  if(rect&&nz>1){const cx=e.clientX-(rect.left+rect.width/2),cy=e.clientY-(rect.top+rect.height/2),k=nz/z;setZoom(nz,cx-(cx-px)*k,cy-(cy-py)*k)}else setZoom(nz,px*(nz/z),py*(nz/z))},{passive:false});
+ sg.addEventListener("dblclick",e=>{if(!e.target?.closest?.(".zhud"))setZoom(1,0,0)});
+ sg.addEventListener("mousedown",e=>{if(e.target?.closest?.(".zhud")||z<=1.01)return;drag={x:e.clientX,y:e.clientY,px,py}});
+ window.addEventListener("mousemove",e=>{if(drag)setZoom(z,drag.px+(e.clientX-drag.x),drag.py+(e.clientY-drag.y))});
+ window.addEventListener("mouseup",()=>{drag=null})})();
+
+const sync=()=>{["stops","noise","sat","con",...ADVK].forEach(k=>{const el=$("#"+k);$("#v-"+k).textContent=el.value;const pct=((+el.value-+el.min)/(+el.max-+el.min)*100).toFixed(1)+"%";el.style?.setProperty?.("--pct",pct)});$("#custom").hidden=$("#ratio").value!=="-1"};
+let prevRatio=$("#ratio").value;
+$("#ratio").addEventListener("change",()=>{
+ const cur=$("#ratio").value;
+ if(cur==="-1"&&prevRatio!=="-1"){
+  const row=RATIOS[+prevRatio]||RATIOS[0],ls=+$("#size").value,k=ls?ls/Math.max(row[1],row[2]):1;
+  $("#cw").value=Math.round(row[1]*k);$("#ch").value=Math.round(row[2]*k);$("#size").value="0";
+ }
+ prevRatio=cur;
+});
+["#cw","#ch"].forEach(id=>{
+ $(id).addEventListener("input",()=>{$("#size").value="0"});
+ $(id).addEventListener("change",()=>{$(id).value=clamp(Math.round(+$(id).value||(id==="#cw"?5000:3000)),256,12000)});
+});
+$("#find").addEventListener("input",()=>{fillStyleAndCol($("#find").value);render()});
+document.querySelectorAll("aside select,aside input:not(#find):not(#cpick),#seed").forEach(e=>{const fn=()=>{sync();save();window.__fast=true;render();clearTimeout(window.__ft);window.__ft=setTimeout(()=>{window.__fast=false;render()},220)};e.addEventListener("input",fn);e.addEventListener("change",fn)});
+$("#again").onclick=()=>{$("#seed").value=Math.floor(Math.random()*1e8)+1;save();render()};
+
+const applyThemeLbl=()=>{const d=document.documentElement,cur=d.dataset.theme==="light"?"light":"dark";$("#theme").textContent=cur==="dark"?"Theme: Dark":"Theme: Light"};
+try{const st=localStorage.getItem("ri-gs-theme");const hl=(typeof location!=="undefined"&&location.hash==="#light");document.documentElement.dataset.theme=(hl||st==="light")?"light":"dark"}catch(e){document.documentElement.dataset.theme="dark"}
+applyThemeLbl();
+$("#theme").onclick=()=>{const d=document.documentElement,nxt=d.dataset.theme==="light"?"dark":"light";d.dataset.theme=nxt;try{localStorage.setItem("ri-gs-theme",nxt)}catch(e){}applyThemeLbl();render()};
+
+/* Export split menu + shortcuts */
+(()=>{const btn=$("#expBtn"),menu=$("#expMenu"),wrap=$("#expWrap");if(!btn||!menu)return;
+ const toggle=f=>{const show=f!==undefined?f:menu.hidden;menu.hidden=!show;btn.setAttribute("aria-expanded",String(show))};
+ btn.addEventListener("click",()=>toggle());
+ document.addEventListener("click",e=>{if(!menu.hidden&&wrap&&!wrap.contains(e.target))toggle(false)});
+ window.toggleExpMenu=toggle;
+ document.addEventListener("keydown",e=>{
+  const t=e.target?.tagName;if(t==="INPUT"||t==="SELECT"||t==="TEXTAREA"||e.metaKey||e.ctrlKey||e.altKey)return;
+  const k=e.key.toLowerCase();
+  if(e.code==="Space"){e.preventDefault();$("#again").click()}
+  else if(k==="e"){e.preventDefault();toggle()}
+  else if(k==="t"){e.preventDefault();$("#theme").click()}
+  else if(k==="f"){e.preventDefault();$("#zfit")?.click()}
+ });
+})();
+
+/* ---------- export: SVG, PNG, JPG (+300/600 DPI & Adobe XMP), PDF ---------- */
+let claudeDl=null;const say=t=>$("#status").textContent=t;
+(async()=>{try{claudeDl=await window.claude?.use("downloads")}catch(e){}say("Ready — Luminous Atelier offline studio")})();
+async function saveDownload(filename,data){
+ if(claudeDl){await claudeDl.save({filename,data});return}
+ const blob=data instanceof Blob?data:new Blob([data],{type:"application/octet-stream"});
+ const url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),90000)}
+const escXml=s=>String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+function buildMeta(st,w,h,pal){
+ const title=`Abstract ${st.n} Gradient Background (${w}x${h})`,desc=`Modern smooth gradient artwork featuring ${st.n} style in ${pal.join(", ")}.`;
+ const kws=["gradient","background","abstract",st.n.toLowerCase(),(st.c||"modern").toLowerCase(),"wallpaper","backdrop","colorful","smooth","minimalist","digital","design","banner","poster","texture","blur"].filter((v,i,a)=>v&&a.indexOf(v)===i);
+ return{title,desc,keywords:kws.join(", ")}}
+function patchJpegDpiAndXmp(bytes,ppi,meta){
+ if(!bytes||bytes.length<4||bytes[0]!==0xFF||bytes[1]!==0xD8)return bytes;
+ const out=new Uint8Array(bytes);
+ let ins=2;
+ // Preserve JFIF APP0 right after SOI and update DPI fields
+ if(out[2]===0xFF&&out[3]===0xE0&&out.length>=20&&out[6]===0x4A&&out[7]===0x46&&out[8]===0x49&&out[9]===0x46){
+  out[13]=1;out[14]=(ppi>>8)&255;out[15]=ppi&255;out[16]=(ppi>>8)&255;out[17]=ppi&255;
+  const app0Len=(out[4]<<8)|out[5];
+  if(app0Len>=14&&4+app0Len<=out.length)ins=4+app0Len;
+ }
+ const kwLi=meta.keywords.split(",").map(s=>s.trim()).filter(Boolean).map(k=>`<rdf:li>${escXml(k)}</rdf:li>`).join("");
+ const xmp=`<?xpacket begin="\uFEFF" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xmp="http://ns.adobe.com/xap/1.0/"><xmp:CreatorTool>RI Gradient Studio</xmp:CreatorTool><dc:title><rdf:Alt><rdf:li xml:lang="x-default">${escXml(meta.title)}</rdf:li></rdf:Alt></dc:title><dc:description><rdf:Alt><rdf:li xml:lang="x-default">${escXml(meta.desc)}</rdf:li></rdf:Alt></dc:description><dc:subject><rdf:Bag>${kwLi}</rdf:Bag></dc:subject></rdf:Description></rdf:RDF></x:xmpmeta><?xpacket end="w"?>`;
+ const te=new TextEncoder(),hdr=te.encode("http://ns.adobe.com/xap/1.0/\0"),xb=te.encode(xmp),segLen=2+hdr.length+xb.length;
+ if(segLen>65530)return out;
+ const res=new Uint8Array(out.length+segLen+2);
+ res.set(out.subarray(0,ins),0);
+ res[ins]=0xFF;res[ins+1]=0xE1;res[ins+2]=(segLen>>8)&255;res[ins+3]=segLen&255;
+ res.set(hdr,ins+4);res.set(xb,ins+4+hdr.length);res.set(out.subarray(ins),ins+4+hdr.length+xb.length);
+ return res}
+function patchPngDpi(bytes,ppi){
+ if(!bytes||bytes.length<33||bytes[0]!==137||bytes[1]!==80||bytes[12]!==73||bytes[13]!==72)return bytes;
+ const ppm=Math.round(ppi/0.0254),chk=new Uint8Array(21),dv=new DataView(chk.buffer);
+ dv.setUint32(0,9);chk.set([112,72,89,115],4);dv.setUint32(8,ppm);dv.setUint32(12,ppm);chk[16]=1;
+ dv.setUint32(17,crc(chk.subarray(4,17)));
+ const res=new Uint8Array(bytes.length+21);res.set(bytes.subarray(0,33),0);res.set(chk,33);res.set(bytes.subarray(33),54);
+ return res}
+const svgStops=pal=>{const n=pal.length-1;if(n<1)return`<stop offset="0%" stop-color="${pal[0]||"#000000"}"/>`;const s=[];for(let i=0;i<=n*2;i++){const u=i/(n*2),p=u*n,k=Math.min(n-1,p|0);s.push(`<stop offset="${Math.round(u*100)}%" stop-color="${mixHex(pal[k],pal[k+1],p-k)}"/>`)}return s.join("")};
+function toSvg(st,o,w,h){
+ const pal=palette(st,o),r=rng(o.seed+7),R=(a,b)=>a+(b-a)*r(),P=()=>pal[(r()*pal.length)|0],m=Math.min(w,h),g=GROUP[st.shape]||"lobes",C=COMPS[o.comp]||[.5,.5,1,null];
+ const px=()=>w*clamp(C[0]+(r()-.5)*C[2],-.05,1.05),py=()=>h*clamp(C[1]+(r()-.5)*C[2],-.05,1.05),stops=svgStops(pal);
+ const isRad=st.bg==="radial",gradDef=isRad?`<radialGradient id="bg" cx="${Math.round(R(30,70))}%" cy="${Math.round(R(30,70))}%" r="75%">${stops}</radialGradient>`:`<linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">${stops}</linearGradient>`;
+ let defs=gradDef,shapes="";
+ if(g==="lobes"){const bk=st.shape==="bokeh",n=bk?16:6;for(let i=0;i<n;i++){const cx=Math.round(px()),cy=Math.round(py()),rad=Math.round(m*(bk?R(.03,.11):R(.22,.55))),c1=P(),c2=P();
+  if(bk){shapes+=`<circle cx="${cx}" cy="${cy}" r="${rad}" fill="${c1}" fill-opacity=".35" stroke="#FFFFFF" stroke-opacity=".35" stroke-width="${Math.max(1,Math.round(m*.002))}"/>`}
+  else{defs+=`<radialGradient id="g${i}" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="${c1}" stop-opacity=".75"/><stop offset="100%" stop-color="${c2}" stop-opacity="0"/></radialGradient>`;shapes+=`<ellipse cx="${cx}" cy="${cy}" rx="${rad}" ry="${Math.round(rad*R(.7,1.2))}" fill="url(#g${i})"/>`}}}
+ else if(g==="waves"){const n=Math.round(R(4,6));for(let i=0;i<n;i++){const y0=h*(.2+.75*i/n),A=m*R(.04,.16),f=R(.8,2),ph=R(0,6.28),c1=P(),c2=P();let d=`M 0 ${Math.round(y0)}`;
+  for(let t=0;t<=w;t+=Math.max(20,Math.round(w/48))){const yy=y0+Math.sin(t/w*6.2832*f+ph)*A;d+=` L ${Math.round(t)} ${Math.round(yy)}`}d+=` L ${w} ${h} L 0 ${h} Z`;
+  defs+=`<linearGradient id="wg${i}" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="${c1}" stop-opacity=".9"/><stop offset="100%" stop-color="${c2}" stop-opacity=".28"/></linearGradient>`;shapes+=`<path d="${d}" fill="url(#wg${i})"/>`}}
+ else if(g==="bands"){const n=Math.round(R(4,7)),ang=Math.round(R(-25,25));for(let i=0;i<n;i++){const y=Math.round(h*(1.2*i/n-.1)),hh=Math.round(h/n*R(.8,1.4)),c1=P(),c2=P();
+  defs+=`<linearGradient id="bg${i}" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="${c1}" stop-opacity=".1"/><stop offset="50%" stop-color="${c1}" stop-opacity=".65"/><stop offset="100%" stop-color="${c2}" stop-opacity=".1"/></linearGradient>`;
+  shapes+=`<rect x="${Math.round(-w*.2)}" y="${y}" width="${Math.round(w*1.4)}" height="${hh}" fill="url(#bg${i})" transform="rotate(${ang} ${w>>1} ${h>>1})"/>`}}
+ else if(g==="facets"||g==="wedges"){const n=12,dia=st.shape==="diamonds";for(let i=0;i<n;i++){const cx=px(),cy=py(),s=m*R(.16,.48),a=R(0,6.28),k=dia?4:3+((r()*2)|0),c1=P(),c2=P();const pts=[];
+  for(let j=0;j<k;j++){const t=a+j*6.2832/k;pts.push(`${Math.round(cx+Math.cos(t)*s)},${Math.round(cy+Math.sin(t)*s*(dia?.7:1))}`)}
+  defs+=`<linearGradient id="fg${i}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c1}" stop-opacity=".68"/><stop offset="100%" stop-color="${c2}" stop-opacity=".12"/></linearGradient>`;shapes+=`<polygon points="${pts.join(" ")}" fill="url(#fg${i})"/>`}}
+ else if(g==="streaks"){const n=16;for(let i=0;i<n;i++){const x1=Math.round(w*R(-.1,1)),y1=Math.round(h*r()),L=m*R(.4,1.2),a=-.7+R(-.1,.1),x2=Math.round(x1+Math.cos(a)*L),y2=Math.round(y1+Math.sin(a)*L),c=P();
+  defs+=`<linearGradient id="sg${i}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c}" stop-opacity="0"/><stop offset="50%" stop-color="${c}" stop-opacity=".8"/><stop offset="100%" stop-color="${c}" stop-opacity="0"/></linearGradient>`;
+  shapes+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="url(#sg${i})" stroke-width="${Math.max(2,Math.round(m*R(.005,.03)))}" stroke-linecap="round"/>`}}
+ else if(g==="rings"){const cx=Math.round(w*R(.3,.7)),cy=Math.round(h*R(.3,.7));for(let i=1;i<=8;i++)shapes+=`<circle cx="${cx}" cy="${cy}" r="${Math.round(m*i*.1)}" fill="none" stroke="${P()}" stroke-opacity=".55" stroke-width="${Math.max(2,Math.round(m*R(.01,.045)))}"/>`}
+ else if(g==="glassRibbon"||g==="silkFold"){
+  const c0=pal[0],c1=pal[1%pal.length],c2=pal[Math.min(2,pal.length-1)],c3=pal[pal.length-1],layers=g==="glassRibbon"?3:5,N=48;
+  for(let i=0;i<layers;i++){
+   const yb=h*(g==="glassRibbon"?[.36,.56,.60][i]:(.06+.19*i)),amp=m*R(.09,.17),f=R(.85,1.4),ph=R(0,6.28),top=[],bot=[];
+   for(let k=0;k<=N;k++){const u=k/N,xp=Math.round(w*(-.08+1.16*u)),yy=Math.round(yb+Math.sin(u*3.6*f+ph)*amp-h*(g==="glassRibbon"?.25*(u-.4):0));top.push(`${xp} ${yy}`);if(g==="glassRibbon")bot.unshift(`${xp} ${Math.round(i===1?h*1.1:yy+m*(.1+.2*Math.sin(u*3.1+i)))}`)}
+   const d=g==="glassRibbon"?`M ${top[0]} L ${top.slice(1).join(" L ")} L ${bot.join(" L ")} Z`:`M ${top[0]} L ${top.slice(1).join(" L ")} L ${w} ${h} L 0 ${h} Z`;
+   const strokeD=`M ${top[0]} L ${top.slice(1).join(" L ")}`;
+   defs+=`<linearGradient id="sl${i}" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${[c0,c1,c2,c0,c3][i]}"/><stop offset="55%" stop-color="${[c1,c2,c3,c1,c0][i]}"/><stop offset="100%" stop-color="${c3}"/></linearGradient>`;
+   shapes+=`<path d="${d}" fill="url(#sl${i})" fill-opacity="${g==="glassRibbon"&&i===2?".62":".95"}"/><path d="${strokeD}" fill="none" stroke="#FFFFFF" stroke-opacity="${g==="glassRibbon"?".75":".55"}" stroke-width="${Math.max(2,Math.round(m*.0035))}"/>`;
+  }
+ }
+ else if(g==="horizon"){const hy=Math.round(h*R(.55,.7)),c=P();defs+=`<radialGradient id="hz" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="${c}" stop-opacity=".85"/><stop offset="100%" stop-color="${c}" stop-opacity="0"/></radialGradient>`;shapes+=`<circle cx="${Math.round(w/2)}" cy="${hy}" r="${Math.round(m*.65)}" fill="url(#hz)"/><rect x="0" y="${hy}" width="${w}" height="${h-hy}" fill="${pal[pal.length-1]}" fill-opacity=".65"/>`}
+ if(st.fx==="glass")for(let i=0;i<3;i++){const pw=Math.round(w*R(.22,.4)),ph=Math.round(h*R(.4,.75)),px0=Math.round(w*R(.05,.65)),py0=Math.round(h*R(.1,.25)),rr=Math.round(m*.03);shapes+=`<rect x="${px0}" y="${py0}" width="${pw}" height="${ph}" rx="${rr}" fill="#FFFFFF" fill-opacity=".14" stroke="#FFFFFF" stroke-opacity=".48" stroke-width="${Math.max(1,Math.round(m*.003))}"/>`}
+ const meta=buildMeta(st,w,h,pal);
+ return new Blob([`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}"><title>${escXml(meta.title)}</title><desc>${escXml(meta.desc)}</desc><defs>${defs}</defs><rect width="${w}" height="${h}" fill="url(#bg)"/>${shapes}</svg>`],{type:"image/svg+xml"})}
+async function toPdf(blob,w,h){
+ const j=new Uint8Array(await blob.arrayBuffer()),e=new TextEncoder(),parts=[],off=[];let n=0;
+ const add=s=>{const b=typeof s==="string"?e.encode(s):s;parts.push(b);n+=b.length},ob=(i,s)=>{off[i]=n;add(`${i} 0 obj\n${s}\nendobj\n`)};
+ const K=72/(+$("#ppi").value||300),W=(w*K).toFixed(2),H=(h*K).toFixed(2),cs=`q ${W} 0 0 ${H} 0 0 cm /Im0 Do Q`;
+ add("%PDF-1.4\n");ob(1,"<</Type/Catalog/Pages 2 0 R>>");ob(2,"<</Type/Pages/Kids[3 0 R]/Count 1>>");
+ ob(3,`<</Type/Page/Parent 2 0 R/MediaBox[0 0 ${W} ${H}]/Resources<</XObject<</Im0 4 0 R>>>>/Contents 5 0 R>>`);
+ off[4]=n;add(`4 0 obj\n<</Type/XObject/Subtype/Image/Width ${w}/Height ${h}/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/DCTDecode/Length ${j.length}>>\nstream\n`);add(j);add("\nendstream\nendobj\n");
+ ob(5,`<</Length ${cs.length}>>\nstream\n${cs}\nendstream`);
+ const xr=n;add("xref\n0 6\n0000000000 65535 f \n");for(let i=1;i<6;i++)add(String(off[i]).padStart(10,"0")+" 00000 n \n");
+ add(`trailer\n<</Size 6/Root 1 0 R>>\nstartxref\n${xr}\n%%EOF`);return new Blob(parts,{type:"application/pdf"})}
+const fname=(st,s,ext)=>`${$("#prefix").value.trim().replace(/[^\w-]+/g,"-")||"RI-Gradient"}-${st.n.replace(/\W+/g,"-")}-${s}.${ext}`;
+const safeDims=(w,h)=>{if(w*h<=16777216)return[w,h];const sc=Math.sqrt(16000000/(w*h));return[Math.round(w*sc),Math.round(h*sc)]};
+function addMicroGrain(cv,amp,seed){
+ try{const cx=cv.getContext("2d",{willReadFrequently:true})||cv.getContext("2d"),id=cx.getImageData(0,0,cv.width,cv.height),d=id.data;
+  let st=(seed^0x9E3779B9)>>>0||1;const mod=amp*2+1,cMod=Math.max(3,(amp|0)+1),cAmp=cMod>>1;
+  for(let i=0;i<d.length;i+=4){
+   st^=st<<13;st^=st>>>17;st^=st<<5;const u1=(st>>>0)%mod-amp;
+   st^=st<<13;st^=st>>>17;st^=st<<5;const u2=(st>>>0)%mod-amp;
+   const l=(u1+u2)>>1;
+   st^=st<<13;st^=st>>>17;st^=st<<5;const cr=((st>>>0)%cMod)-cAmp,cb=((st>>>16)%cMod)-cAmp;
+   const r=d[i]+l+cr,g=d[i+1]+l,b=d[i+2]+l+cb;
+   d[i]=r<0?0:r>255?255:r;d[i+1]=g<0?0:g>255?255:g;d[i+2]=b<0?0:b>255?255:b}
+  cx.putImageData(id,0,0)}catch(e){}}
+async function makeDetailed(kind,o,w,h){const st=curStyle(o);if(kind==="svg")return{blob:toSvg(st,o,w,h),w,h};
+ const enc=(cv,mime,q)=>new Promise(r=>cv.toBlob(r,mime,q));
+ const renderBlob=async(tw,th)=>{let c=document.createElement("canvas");c.getContext("2d",{willReadFrequently:true});
+  const pal=draw(c,tw,th,st,o),mime=kind==="png"?"image/png":"image/jpeg";
+  let blob=await enc(c,mime,kind==="jpg"?.99:.98);
+  if(!blob)return null;
+  if(kind==="jpg"&&blob.size>=1024){
+   const minB=(+$("#minmb")?.value||0)*1048576,maxB=(+$("#maxmb")?.value||0)*1048576;
+   if(minB>0&&blob.size<minB){
+    // Snap clean base canvas before grain passes so exact (tw,th) dimensions never change
+    let snap=null;try{snap=document.createElement("canvas");snap.width=tw;snap.height=th;snap.getContext("2d").drawImage(c,0,0)}catch(e){snap=null}
+    const amps=[5,9,14,22];
+    for(let s=0;blob.size<minB&&s<amps.length;s++){
+     if(s>0&&snap){const cx=c.getContext("2d");cx.clearRect(0,0,tw,th);cx.drawImage(snap,0,0)}
+     addMicroGrain(c,amps[s],o.seed+s*97+13);
+     blob=await enc(c,mime,1.0)||blob}
+   }
+   const qs=[.97,.94,.90,.86,.80,.74,.68];
+   for(let t=0;maxB>minB&&blob.size>maxB&&t<qs.length;t++){blob=await enc(c,mime,qs[t])||blob}
+  }
+  c.width=0;c.height=0;
+  return{pal,blob,w:tw,h:th}};
+ let res=null;try{res=await renderBlob(w,h)}catch(e){res=null}
+ if(!res){const[sw,sh]=safeDims(w,h);res=await renderBlob(sw,sh)}
+ if(!res||!res.blob)throw new Error("render");
+ const ppi=+$("#ppi").value||300;
+ if(kind==="jpg"){const patched=patchJpegDpiAndXmp(new Uint8Array(await res.blob.arrayBuffer()),ppi,buildMeta(st,res.w,res.h,res.pal));return{blob:new Blob([patched],{type:"image/jpeg"}),w:res.w,h:res.h}}
+ if(kind==="png"){const patched=patchPngDpi(new Uint8Array(await res.blob.arrayBuffer()),ppi);return{blob:new Blob([patched],{type:"image/png"}),w:res.w,h:res.h}}
+ return{blob:kind==="pdf"?await toPdf(res.blob,res.w,res.h):res.blob,w:res.w,h:res.h}}
+async function make(kind,o,w,h){return(await makeDetailed(kind,o,w,h)).blob}
+const fmtSize=b=>b>=1048576?(b/1048576).toFixed(2)+" MB":Math.max(1,Math.round(b/1024))+" KB";
+const fail=e=>say(e&&e.code==="declined"?"Save cancelled.":"Export failed. Try a smaller export size.");
+async function exp(kind){
+ window.toggleExpMenu?.(false);
+ const[w,h]=target(),o=opts();say("Rendering "+kind.toUpperCase()+" "+w+"×"+h+"…");await new Promise(r=>setTimeout(r,20));
+ try{const r=await makeDetailed(kind,o,w,h);await saveDownload(fname(curStyle(o),o.seed,kind),r.blob);say("Done: "+kind.toUpperCase()+" · "+r.w+"×"+r.h+" ("+fmtSize(r.blob.size||0)+")"+(kind==="svg"?" · simplified vector, not identical to preview":""))}catch(e){fail(e)}}
+document.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>exp(b.dataset.k));
+$("#clrhex")?.addEventListener?.("click",()=>{if(!$("#hex").value)return;$("#hex").value="";save();render();say("Custom colors cleared.")});
+$("#reset")?.addEventListener?.("click",()=>{try{localStorage.removeItem("ri-gs")}catch(e){}$("#find").value="";fillStyleAndCol("");$("#style").value=aurIdx>=0?aurIdx:"random";$("#col").value="auto";["comp","harm","light","tex"].forEach(id=>$("#"+id).value="-1");$("#hex").value="";$("#stops").value=4;$("#noise").value=35;$("#sat").value=100;$("#con").value=100;$("#ratio").value="0";$("#size").value="0";$("#ppi").value="300";if($("#minmb"))$("#minmb").value="4";if($("#maxmb"))$("#maxmb").value="20";$("#prefix").value="";$("#seed").value=20261112;sync();save();render();say("All settings reset to studio defaults.")});
+$("#copymeta")?.addEventListener?.("click",()=>{const[w,h]=target(),o=opts(),st=curStyle(o),m=buildMeta(st,w,h,palette(st,o)),txt="Title: "+m.title+"\nDescription: "+m.desc+"\nKeywords: "+m.keywords;try{navigator.clipboard?.writeText?.(txt)}catch(e){}say("Adobe Stock Title, Description & Keywords copied.")});
+
+/* ---------- batch, review, ZIP and CSV ---------- */
+let batch=[],genRunId=0;const ok=new Set();
+const chkSvg='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
+async function makeDetailedWithStyle(kind,st,o,w,h){
+ if(kind==="svg")return{blob:toSvg(st,o,w,h),w,h};
+ const enc=(cv,mime,q)=>new Promise(r=>cv.toBlob(r,mime,q));
+ const renderBlob2=async(tw,th)=>{let c=document.createElement("canvas");c.getContext("2d",{willReadFrequently:true});
+  const pal=draw(c,tw,th,st,o),mime=kind==="png"?"image/png":"image/jpeg";
+  let blob=await enc(c,mime,kind==="jpg"?.99:.98);
+  if(!blob)return null;
+  if(kind==="jpg"&&blob.size>=1024){
+   const minB=(+$("#minmb")?.value||0)*1048576,maxB=(+$("#maxmb")?.value||0)*1048576;
+   if(minB>0&&blob.size<minB){
+    let snap=null;try{snap=document.createElement("canvas");snap.width=tw;snap.height=th;snap.getContext("2d").drawImage(c,0,0)}catch(e){snap=null}
+    const amps=[5,9,14,22];
+    for(let s=0;blob.size<minB&&s<amps.length;s++){
+     if(s>0&&snap){const cx=c.getContext("2d");cx.clearRect(0,0,tw,th);cx.drawImage(snap,0,0)}
+     addMicroGrain(c,amps[s],o.seed+s*97+13);
+     blob=await enc(c,mime,1.0)||blob}}
+   const qs=[.97,.94,.90,.86,.80,.74,.68];
+   for(let t=0;maxB>minB&&blob.size>maxB&&t<qs.length;t++){blob=await enc(c,mime,qs[t])||blob}
+  }
+  c.width=0;c.height=0;
+  return{pal,blob,w:tw,h:th}};
+ let res=null;try{res=await renderBlob2(w,h)}catch(e){res=null}
+ if(!res){const[sw,sh]=safeDims(w,h);res=await renderBlob2(sw,sh)}
+ if(!res||!res.blob)throw new Error("render");
+ const ppi=+$("#ppi").value||300;
+ if(kind==="jpg"){const patched=patchJpegDpiAndXmp(new Uint8Array(await res.blob.arrayBuffer()),ppi,buildMeta(st,res.w,res.h,res.pal));return{blob:new Blob([patched],{type:"image/jpeg"}),w:res.w,h:res.h}}
+ if(kind==="png"){const patched=patchPngDpi(new Uint8Array(await res.blob.arrayBuffer()),ppi);return{blob:new Blob([patched],{type:"image/png"}),w:res.w,h:res.h}}
+ return{blob:kind==="pdf"?await toPdf(res.blob,res.w,res.h):res.blob,w:res.w,h:res.h}}
+
+$("#gen").onclick=async()=>{const runId=++genRunId,n=+$("#count").value,base=opts().seed,g=$("#grid"),[w,h]=dims(),k=300/Math.max(w,h);g.innerHTML="";batch=[];ok.clear();
+ $("#zip").disabled=$("#csv").disabled=$("#selall").disabled=$("#expall").disabled=true;
+ if($("#selall"))$("#selall").textContent="Approve All";
+ for(let i=0;i<n;i++){if(runId!==genRunId)return;const s=base+i*7919,o=opts(s),st=curStyle(o),cv=document.createElement("canvas"),pal=draw(cv,Math.round(w*k),Math.round(h*k),st,o),f=document.createElement("figure");
+  f.innerHTML='<label class="ck"><input type="checkbox" aria-label="Approve variation '+(i+1)+'">'+chkSvg+'</label><figcaption>'+(i+1)+'. '+st.n+'</figcaption>';f.prepend(cv);
+  cv.tabIndex=0;cv.setAttribute("role","button");cv.setAttribute("aria-label","Open variation "+(i+1));
+  const open=()=>{$("#seed").value=s;save();render();scrollTo({top:0,behavior:"smooth"})};cv.onclick=open;cv.onkeydown=e=>{if(e.key==="Enter")open()};
+  f.querySelector("input").onchange=e=>{
+   e.target.checked?ok.add(i):ok.delete(i);
+   f.classList.toggle("approved",e.target.checked);
+   if($("#selall"))$("#selall").textContent=(ok.size===batch.length)?"Unselect All":"Approve All";
+  };
+  g.append(f);batch.push({i,s,st,pal});
+  if((i+1)%4===0||i===n-1){say("Generating preview "+(i+1)+" / "+n+"…");await new Promise(r=>setTimeout(r,0))}}
+ $("#zip").disabled=$("#csv").disabled=$("#selall").disabled=$("#expall").disabled=false;say(n+" variations ready")};
+
+$("#selall")?.addEventListener?.("click",()=>{
+ if(!batch.length)return;
+ const all=ok.size<batch.length;ok.clear();
+ const figs=$("#grid").querySelectorAll?.("figure")||[],inputs=$("#grid").querySelectorAll?.("input")||[];
+ inputs.forEach((inp,idx)=>{inp.checked=all;figs[idx]?.classList?.toggle?.("approved",all);if(all&&batch[idx])ok.add(batch[idx].i)});
+ $("#selall").textContent=all?"Unselect All":"Approve All";
+ say(all?"Approved all "+batch.length+" items.":"Cleared approval selection.");
+});
+
+const CRC=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^c>>>1:c>>>1;t[n]=c>>>0}return t})();
+const crc=u=>{let c=-1;for(let i=0;i<u.length;i++)c=CRC[(c^u[i])&255]^c>>>8;return(c^-1)>>>0};
+function zip(files){const e=new TextEncoder(),parts=[],cd=[];let off=0;
+ for(const{name,data}of files){const nm=e.encode(name),c=crc(data),h=new DataView(new ArrayBuffer(30));
+  h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint32(14,c,true);h.setUint32(18,data.length,true);h.setUint32(22,data.length,true);h.setUint16(26,nm.length,true);parts.push(h.buffer,nm,data);
+  const d=new DataView(new ArrayBuffer(46));d.setUint32(0,0x02014b50,true);d.setUint16(4,20,true);d.setUint16(6,20,true);d.setUint16(8,0x0800,true);d.setUint32(16,c,true);d.setUint32(20,data.length,true);d.setUint32(24,data.length,true);d.setUint16(28,nm.length,true);d.setUint32(42,off,true);cd.push(d.buffer,nm);off+=30+nm.length+data.length}
+ const cs=cd.reduce((a,b)=>a+b.byteLength,0),z=new DataView(new ArrayBuffer(22));z.setUint32(0,0x06054b50,true);z.setUint16(8,files.length,true);z.setUint16(10,files.length,true);z.setUint32(12,cs,true);z.setUint32(16,off,true);
+ return new Blob([...parts,...cd,z.buffer],{type:"application/zip"})}
+const picked=()=>batch.filter(b=>ok.size?ok.has(b.i):true);
+
+/* "Export All" button: exports ALL batch variants as a single ZIP */
+$("#expall").onclick=async()=>{
+ if(!batch.length)return;
+ const kind=$("#bfmt").value,[w,h]=target(),files=[];
+ const expallBtn=$("#expall"),zipBtn=$("#zip");
+ expallBtn.disabled=zipBtn.disabled=true;
+ try{
+  for(let n=0;n<batch.length;n++){
+   const b=batch[n];
+   say("Exporting "+(n+1)+" of "+batch.length+" — "+b.st.n+"…");
+   await new Promise(r=>setTimeout(r,10));
+   const o2={...opts(b.s)};
+   const r2=await makeDetailedWithStyle(kind,b.st,o2,w,h);
+   files.push({name:fname(b.st,b.s,kind),data:new Uint8Array(await r2.blob.arrayBuffer())});
+  }
+  await saveDownload("RI-Gradient-ALL-"+batch.length+".zip",zip(files));
+  say("Done: All "+files.length+" variants exported to ZIP!");
+ }catch(e){fail(e)}
+ finally{expallBtn.disabled=zipBtn.disabled=false;}
+};
+
+/* "Download ZIP" button: exports approved variants (or all if none selected) */
+$("#zip").onclick=async()=>{
+ if(!batch.length)return;
+ const pick=picked();
+ if(!pick.length){say("No variations approved. Click Approve All or use Export All.");return}
+ const kind=$("#bfmt").value,[w,h]=target(),files=[];
+ const expallBtn=$("#expall"),zipBtn=$("#zip");
+ expallBtn.disabled=zipBtn.disabled=true;
+ try{
+  for(let n=0;n<pick.length;n++){
+   const b=pick[n];say("Rendering "+(n+1)+" of "+pick.length+"…");await new Promise(r=>setTimeout(r,10));
+   const o2={...opts(b.s)};
+   const r2=await makeDetailedWithStyle(kind,b.st,o2,w,h);
+   files.push({name:fname(b.st,b.s,kind),data:new Uint8Array(await r2.blob.arrayBuffer())});}
+  await saveDownload("RI-Gradient-batch.zip",zip(files));say("Done: "+files.length+" files in the ZIP");
+ }catch(e){fail(e)}
+ finally{expallBtn.disabled=zipBtn.disabled=false;}
+};
+
+$("#csv").onclick=async()=>{if(!batch.length)return;const[w,h]=target(),kind=$("#bfmt").value,rows=[["Filename","Title","Description","Keywords","Category","Design ID","Seed","Width","Height","Colors","Approved"],...batch.map(b=>{const m=buildMeta(b.st,w,h,b.pal);return[fname(b.st,b.s,kind),m.title,m.desc,m.keywords,"Graphic Resources > Backgrounds","RI-GRAD-"+String(b.i+1).padStart(4,"0"),b.s,w,h,b.pal.join(" "),ok.has(b.i)?"yes":"no"]})];
+ try{const csvTxt="﻿"+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\n");await saveDownload("RI-Gradient-batch.csv",new Blob([csvTxt],{type:"text/csv;charset=utf-8"}));say("Done: Adobe Stock CSV saved")}catch(e){fail(e)}};
+
+document.querySelectorAll(".tabs button").forEach((b,idx)=>b.onclick=()=>{
+ document.querySelectorAll(".tabs button").forEach(t=>t.setAttribute("aria-selected",String(t===b)));
+ document.querySelectorAll(".pane").forEach(p=>p.hidden=p.id!==b.dataset.p);
+ const pill=$("#tabPill");if(pill&&pill.style)pill.style.transform="translateX("+(idx*100)+"%)";
+});
+$("#reset")?.addEventListener("click",()=>{ADV.forEach(([,a])=>a.forEach(q=>$("#a_"+q[0]).value=q[4]));sync();save();render()});
+$("#advRand").onclick=()=>{const r=(p,q)=>Math.round(p+Math.random()*(q-p)),set=(k,v)=>$("#a_"+k).value=v;set("zoom",r(100,180));set("rot",r(-40,40));set("blur",r(0,14));set("hue",r(-40,40));set("gN",r(0,3));set("pat",Math.random()<.5?r(1,1000):0);sync();save();render()};
+
+sync();render();
+</script></body></html>
