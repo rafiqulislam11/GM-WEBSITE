@@ -24,10 +24,14 @@
 *,*::before,*::after{box-sizing:border-box}
 html,body{height:100%;margin:0;padding:0}
 body{
- display:flex;flex-direction:column;min-height:100vh;overflow-y:auto;overflow-x:hidden;
+ display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;overflow-y:auto;overflow-x:hidden;
  background:radial-gradient(ellipse 90% 70% at 62% 10%,color-mix(in srgb,var(--g1) 11%,transparent),transparent 70%),var(--bg);
  color:var(--ink);font:400 13.5px/1.45 var(--f-sans);
  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+ padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);
+ -webkit-tap-highlight-color:transparent;
+ -webkit-text-size-adjust:100%;
+ text-size-adjust:100%;
  transition:background-color 220ms ease-out,color 200ms ease-out;
 }
 /* Subtle panel grain overlay via inline SVG URI */
@@ -366,38 +370,161 @@ figure.approved .ck svg{stroke:var(--onacc);opacity:1}
  *,*::before,*::after{animation-duration:1ms!important;transition-duration:1ms!important}
  button.pri::after{display:none}
 }
-@media (max-height:780px) and (min-width:861px){body{overflow-y:auto}.app-shell{min-height:780px}}
-@media (max-width:860px){
- html,body{height:auto;min-height:100%;width:100%;max-width:100%;overflow-x:hidden;overflow-y:auto}
- .app-shell{padding:8px;width:100%;max-width:100vw;overflow-x:hidden}
- header{flex-direction:column;align-items:stretch;gap:8px;padding:10px;width:100%;max-width:100%;min-width:0}
- .brand{justify-content:flex-start;min-width:0}
- .brand h1{font-size:19px;white-space:normal}
- .hright{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:100%;min-width:0}
- .hright select,.hright button{width:100%;min-width:0;max-width:100%;padding:6px 8px;font-size:12px}
- .hright #view{grid-column:1 / -1;padding-right:26px}
- .kbd-hint,.pill{display:none}
- .app{display:flex;flex-direction:column;width:100%;max-width:100%;min-width:0}
- main{order:-1;width:100%;max-width:100%;min-width:0}
- .stage{flex:none;height:44vh;min-height:230px;padding:12px;width:100%;max-width:100%;min-width:0}
- .stage canvas#cv{max-width:calc(100cqw - 24px);max-height:calc(100cqh - 24px)}
- .toast{max-width:calc(100% - 20px);bottom:54px;font-size:11.5px}
- .exp-menu{left:0;right:auto;width:min(264px,calc(100vw - 32px))}
- .meta,.bar,.batch{width:100%;max-width:100%;min-width:0}
- .bar label{min-width:0}
- .bar input[type=number]{width:92px;min-width:0}
- .batch{grid-template-columns:minmax(0,1fr)}
- .batch-bar{flex-wrap:wrap}
- .grid-empty{padding:12px;text-align:center;flex-direction:column;gap:6px;font-size:12px}
- aside{border-radius:var(--r-xl) var(--r-xl) 14px 14px;max-height:none;width:100%;max-width:100%;min-width:0}
- .pane{overflow:visible;min-width:0;width:100%}
- .grp,.grp>*{min-width:0;max-width:100%}
- .style-row{flex-wrap:wrap;min-width:0;width:100%}
- .style-row select{flex:1 1 180px;width:100%;min-width:0}
- .style-card{width:100%;justify-content:space-between}
- .style-pop{left:10px;right:10px;top:auto;bottom:14px;width:auto}
- button,select,input[type=text],input[type=number]{min-height:42px}
- .chips i{width:28px;height:28px}
+/* Desktop & Laptop Breakpoint: 861px - 1180px */
+@media (max-width: 1180px) and (min-width: 861px) {
+ .kbd-hint { display: none }
+ .app { grid-template-columns: 310px minmax(0, 1fr); gap: 10px }
+ header { padding: 8px 12px; gap: 8px }
+ .hright select { min-width: 120px }
+ .batch-bar { flex-wrap: wrap }
+}
+
+/* Vertical Height Constraints on Large Screens */
+@media (max-height: 780px) and (min-width: 861px) {
+ body { overflow-y: auto }
+ .app-shell { min-height: 740px }
+}
+
+/* =========================================================
+   TABLETS & MOBILES (<= 860px)
+   ========================================================= */
+@media (max-width: 860px) {
+ html, body { height: auto; min-height: 100%; min-height: 100dvh; width: 100%; max-width: 100%; overflow-x: hidden; overflow-y: auto }
+ .app-shell { padding: 8px; width: 100%; max-width: 100vw; overflow-x: hidden }
+ 
+ /* Header */
+ header { flex-direction: column; align-items: stretch; gap: 8px; padding: 10px 12px; width: 100%; max-width: 100%; min-width: 0 }
+ .brand { justify-content: flex-start; min-width: 0 }
+ .brand h1 { font-size: clamp(17px, 4.5vw, 21px); white-space: normal }
+ .kbd-hint, .pill { display: none }
+ 
+ /* Right controls in header: #view spans top, 3 buttons share row 2 evenly */
+ .hright { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; width: 100%; min-width: 0 }
+ .hright select, .hright button { width: 100%; min-width: 0; max-width: 100%; padding: 7px 6px; font-size: 12px; min-height: 40px; justify-content: center; text-align: center }
+ .hright #view { grid-column: 1 / -1; padding-right: 26px }
+
+ /* Workspace Stack: Stage first, Atelier second */
+ .app { display: flex; flex-direction: column; width: 100%; max-width: 100%; min-width: 0 }
+ main { order: -1; width: 100%; max-width: 100%; min-width: 0 }
+ 
+ /* Stage Canvas */
+ .stage { flex: none; height: clamp(240px, 42vh, 420px); min-height: 220px; padding: 12px; width: 100%; max-width: 100%; min-width: 0 }
+ .stage canvas#cv { max-width: calc(100cqw - 20px); max-height: calc(100cqh - 20px) }
+ .toast { max-width: calc(100% - 24px); bottom: 52px; font-size: 11.5px; padding: 6px 12px }
+ .zhud { right: 8px; bottom: 8px; padding: 3px }
+ .zhud button { min-width: 32px; min-height: 32px; padding: 4px 6px; font-size: 12px }
+ .zhud span { min-width: 38px; font-size: 11px }
+
+ /* Meta Chips */
+ .meta, .bar, .batch { width: 100%; max-width: 100%; min-width: 0 }
+ .meta { padding: 8px 12px; gap: 8px }
+ .meta-l { gap: 8px; width: 100% }
+ #cap { font-size: 15px; white-space: normal; word-break: break-word }
+ #qbadge { font-size: 11px; width: 100% }
+ .chips { gap: 6px }
+ .chips i { width: 28px; height: 28px }
+
+ /* Export Menu - NEVER bleed off right screen edge */
+ .exp-menu { left: auto; right: 0; width: 100%; min-width: 240px; max-width: calc(100vw - 28px) }
+
+ /* Aside Atelier Panel */
+ aside { border-radius: var(--r-xl); max-height: none; width: 100%; max-width: 100%; min-width: 0 }
+ .pane { overflow: visible; min-width: 0; width: 100%; padding: 10px }
+ .grp, .grp > * { min-width: 0; max-width: 100% }
+ .style-row { flex-wrap: wrap; min-width: 0; width: 100% }
+ .style-row select { flex: 1 1 180px; width: 100%; min-width: 0 }
+ .style-card { width: 100%; justify-content: space-between }
+
+ /* Style Gallery Popover as Touch-Friendly Bottom Sheet */
+ .style-pop {
+  position: fixed; left: 8px; right: 8px; top: auto; bottom: 8px;
+  width: auto; max-width: none; max-height: min(520px, calc(100vh - 40px));
+  z-index: 999; border-radius: 18px;
+  box-shadow: 0 16px 50px rgba(0,0,0,.65), 0 0 0 9999px rgba(0,0,0,.45), var(--inner);
+ }
+ .style-grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px }
+
+ /* Touch targets & iOS Safari 16px input prevention */
+ button, select, input[type=text], input[type=number] { min-height: 42px }
+ select, input[type=text], input[type=number] { font-size: 16px !important }
+ input[type=range] { height: 8px; margin: 8px 0 }
+ input[type=range]::-webkit-slider-thumb { width: 22px; height: 22px }
+ input[type=range]::-moz-range-thumb { width: 22px; height: 22px }
+}
+
+/* =========================================================
+   TABLETS PORTRAIT SPECIFICS (641px - 860px)
+   ========================================================= */
+@media (min-width: 641px) and (max-width: 860px) {
+ .pane { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start }
+ .pane .grp { height: 100% }
+ .bar { display: flex; flex-wrap: wrap; gap: 8px }
+ .batch-bar { display: flex; flex-wrap: wrap; gap: 8px }
+}
+
+/* =========================================================
+   SMARTPHONES (<= 640px)
+   ========================================================= */
+@media (max-width: 640px) {
+ .app-shell { padding: 6px }
+ 
+ /* Action Bar: clean 2x2 grid */
+ .bar { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100% }
+ .bar label { grid-column: 1 / 2; display: flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0 }
+ .bar label input[type=number] { flex: 1; width: 100% !important; min-width: 0 }
+ .bar #again { grid-column: 2 / 3; width: 100%; white-space: nowrap }
+ .bar #copymeta { grid-column: 1 / 2; width: 100%; white-space: nowrap }
+ .bar .grow { display: none }
+ .bar .exp-wrap { grid-column: 2 / 3; width: 100% }
+ .bar .exp-wrap button#expBtn { width: 100%; justify-content: center }
+
+ /* Batch Bar on Mobile */
+ .batch { padding: 8px }
+ .batch-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100% }
+ .batch-bar label:nth-of-type(1) { grid-column: 1 / 2; display: flex; align-items: center; gap: 4px }
+ .batch-bar label:nth-of-type(1) select { width: 100% }
+ .batch-bar label:nth-of-type(2) { grid-column: 2 / 3; display: flex; align-items: center; gap: 4px }
+ .batch-bar label:nth-of-type(2) select { width: 100% }
+ .batch-bar #gen { grid-column: 1 / -1; width: 100%; min-height: 42px }
+ .batch-bar #selall { grid-column: 1 / 2; width: 100%; min-width: 0 !important; padding: 6px 4px; font-size: 11.5px }
+ .batch-bar #expall { grid-column: 2 / 3; width: 100%; min-width: 0 !important; padding: 6px 4px; font-size: 11.5px }
+ .batch-bar #zip { grid-column: 1 / 2; width: 100%; min-width: 0 !important; padding: 6px 4px; font-size: 11.5px }
+ .batch-bar #csv { grid-column: 2 / 3; width: 100%; min-width: 0 !important; padding: 6px 4px; font-size: 11.5px }
+
+ /* Batch Filmstrip Cards */
+ figure { width: 138px; height: 112px; padding: 5px }
+ figcaption { font-size: 10px }
+ .grid-empty { font-size: 11.5px; padding: 8px }
+
+ /* Tabs on Mobile */
+ .tabs { margin: 8px 8px 0 }
+ .tabs button { font-size: 11.5px; padding: 7px 4px; gap: 4px }
+ .tabs button svg.ic { width: 13px; height: 13px }
+}
+
+/* =========================================================
+   COMPACT SMARTPHONES (<= 380px, e.g. iPhone SE, Fold front)
+   ========================================================= */
+@media (max-width: 380px) {
+ .app-shell { padding: 4px }
+ header { padding: 8px 10px }
+ .brand h1 { font-size: 16px }
+ .monogram { width: 28px; height: 28px }
+ .hright select, .hright button { font-size: 11px; padding: 6px 3px }
+ .tabs button { font-size: 10.5px; padding: 6px 2px; gap: 2px }
+ .tabs button svg.ic { width: 12px; height: 12px }
+ .style-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+ .bar #again, .bar #copymeta, .bar .exp-wrap button#expBtn { font-size: 12px; padding: 6px 8px }
+}
+
+/* =========================================================
+   MOBILE LANDSCAPE / SHORT VIEWPORTS (max-height: 520px)
+   ========================================================= */
+@media (max-height: 520px) {
+ header { padding: 6px 10px }
+ .brand h1 { font-size: 16px }
+ .stage { height: clamp(170px, 50vh, 250px); min-height: 160px; padding: 8px }
+ .style-pop { max-height: calc(100vh - 20px); top: 10px; bottom: 10px }
 }</style></head><body>
 <div class="app-shell">
 <header>
@@ -827,8 +954,12 @@ function fitStageCanvas(w,h){
  if(vw==="phone"||vw==="laptop"){cv.style.aspectRatio="";cv.style.width="";cv.style.height="";return}
  cv.style.aspectRatio=w+" / "+h;
  if(vw==="poster"){cv.style.width="";cv.style.height="";return}
- const aw=(fr?.clientWidth>40?fr.clientWidth:(sg?.clientWidth?sg.clientWidth-40:0)),ah=(fr?.clientHeight>40?fr.clientHeight:(sg?.clientHeight?sg.clientHeight-40:0));
- if(aw>40&&ah>40){
+ const cs=window.getComputedStyle?getComputedStyle(sg):null;
+ const padX=cs?(parseFloat(cs.paddingLeft)||0)+(parseFloat(cs.paddingRight)||0):40;
+ const padY=cs?(parseFloat(cs.paddingTop)||0)+(parseFloat(cs.paddingBottom)||0):40;
+ const aw=Math.max(20,(sg?.clientWidth||0)-padX);
+ const ah=Math.max(20,(sg?.clientHeight||0)-padY);
+ if(aw>20&&ah>20){
   const s=Math.min(aw/w,ah/h);
   cv.style.width=Math.max(1,Math.floor(w*s))+"px";
   cv.style.height=Math.max(1,Math.floor(h*s))+"px";
@@ -934,7 +1065,7 @@ $("#view")?.addEventListener?.("change",e=>{const sg=$("#stage");if(!sg)return;s
 if(typeof ResizeObserver!=="undefined"&&$("#stage"))new ResizeObserver(()=>{const[w,h]=target();fitStageCanvas(w,h)}).observe($("#stage"));
 else if(typeof window!=="undefined")window.addEventListener?.("resize",()=>{const[w,h]=target();fitStageCanvas(w,h)});
 (()=>{const sg=$("#stage"),fr=$("#frame"),zb=$("#zoom"),zl=$("#zlbl");
- let z=1,px=0,py=0,drag=null;
+ let z=1,px=0,py=0,drag=null,pinchDist=null,pinchZ=1;
  window.setZoom=(nz,nx,ny)=>{z=clamp(nz,.4,6);if(Math.abs(z-1)<.02){z=1;px=0;py=0}else if(nx!=null){px=nx;py=ny}
   if(fr&&fr.style)fr.style.transform="translate("+px.toFixed(1)+"px,"+py.toFixed(1)+"px) scale("+z.toFixed(3)+")";
   if(sg){sg.dataset.zoom=z.toFixed(2);sg.classList?.toggle?.("zoomed",z!==1)}
@@ -953,7 +1084,20 @@ else if(typeof window!=="undefined")window.addEventListener?.("resize",()=>{cons
  sg.addEventListener("dblclick",e=>{if(!e.target?.closest?.(".zhud"))setZoom(1,0,0)});
  sg.addEventListener("mousedown",e=>{if(e.target?.closest?.(".zhud")||z<=1.01)return;drag={x:e.clientX,y:e.clientY,px,py}});
  window.addEventListener("mousemove",e=>{if(drag)setZoom(z,drag.px+(e.clientX-drag.x),drag.py+(e.clientY-drag.y))});
- window.addEventListener("mouseup",()=>{drag=null})})();
+ window.addEventListener("mouseup",()=>{drag=null});
+ sg.addEventListener("touchstart",e=>{
+  if(e.target?.closest?.(".zhud"))return;
+  if(e.touches.length===1&&z>1.01){drag={x:e.touches[0].clientX,y:e.touches[0].clientY,px,py}}
+  else if(e.touches.length===2){drag=null;pinchDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);pinchZ=z}
+ },{passive:true});
+ sg.addEventListener("touchmove",e=>{
+  if(drag&&e.touches.length===1){e.preventDefault();setZoom(z,drag.px+(e.touches[0].clientX-drag.x),drag.py+(e.touches[0].clientY-drag.y))}
+  else if(e.touches.length===2&&pinchDist){e.preventDefault();const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);setZoom(clamp(pinchZ*(d/pinchDist),.4,6))}
+ },{passive:false});
+ const endTouch=()=>{drag=null;pinchDist=null};
+ sg.addEventListener("touchend",endTouch);
+ sg.addEventListener("touchcancel",endTouch);
+})();
 
 const sync=()=>{["stops","noise","sat","con",...ADVK].forEach(k=>{const el=$("#"+k);$("#v-"+k).textContent=el.value;const pct=((+el.value-+el.min)/(+el.max-+el.min)*100).toFixed(1)+"%";el.style?.setProperty?.("--pct",pct)});$("#custom").hidden=$("#ratio").value!=="-1"};
 let prevRatio=$("#ratio").value;
