@@ -2607,9 +2607,11 @@
       }
 
       const _noiseCache = new Map();
-      function getNoiseTile(seed, dist, colorMode, blendMode) {
+      function getNoiseTile(seed, dist, colorMode, blendMode, boost) {
          const d = dist || "gaussian", cm = colorMode || "mono", bm = blendMode || "overlay";
-         const key = seed + "_" + d + "_" + cm + "_" + bm;
+         const bst = boost || 1.0;
+         const bstKey = Math.round(bst * 10);
+         const key = seed + "_" + d + "_" + cm + "_" + bm + "_" + bstKey;
          if (_noiseCache.has(key)) return _noiseCache.get(key);
          const ts = 256;
          const cv = document.createElement("canvas"); cv.width = cv.height = ts;
@@ -2619,72 +2621,89 @@
             let r, g, b;
             if (isSalt) {
                if (bm === "screen") {
-                  if (isChroma) { r = nr() < 0.12 ? 255 : 0; g = nr() < 0.12 ? 255 : 0; b = nr() < 0.12 ? 255 : 0; }
-                  else { const v = nr() < 0.12 ? 255 : 0; r = g = b = v; }
+                  const amp = Math.min(220, Math.round(180 * bst));
+                  if (isChroma) { r = nr() < 0.12 ? amp : 0; g = nr() < 0.12 ? amp : 0; b = nr() < 0.12 ? amp : 0; }
+                  else { const v = nr() < 0.12 ? amp : 0; r = g = b = v; }
                } else if (bm === "multiply") {
-                  if (isChroma) { r = nr() > 0.88 ? 0 : 255; g = nr() > 0.88 ? 0 : 255; b = nr() > 0.88 ? 0 : 255; }
-                  else { const v = nr() > 0.88 ? 0 : 255; r = g = b = v; }
+                  const amp = Math.min(220, Math.round(180 * bst));
+                  if (isChroma) { r = nr() > 0.88 ? 255 - amp : 255; g = nr() > 0.88 ? 255 - amp : 255; b = nr() > 0.88 ? 255 - amp : 255; }
+                  else { const v = nr() > 0.88 ? 255 - amp : 255; r = g = b = v; }
                } else {
+                  const amp = Math.min(120, Math.round(95 * bst));
                   if (isChroma) {
                      const u1 = nr(), u2 = nr(), u3 = nr();
-                     r = u1 < 0.08 ? 255 : (u1 > 0.92 ? 0 : clamp(128 + Math.round((nr() + nr() - 1) * 35), 0, 255));
-                     g = u2 < 0.08 ? 255 : (u2 > 0.92 ? 0 : clamp(128 + Math.round((nr() + nr() - 1) * 35), 0, 255));
-                     b = u3 < 0.08 ? 255 : (u3 > 0.92 ? 0 : clamp(128 + Math.round((nr() + nr() - 1) * 35), 0, 255));
+                     r = clamp(128 + (u1 < 0.08 ? amp : (u1 > 0.92 ? -amp : Math.round((nr() + nr() - 1) * 30 * bst))), 0, 255);
+                     g = clamp(128 + (u2 < 0.08 ? amp : (u2 > 0.92 ? -amp : Math.round((nr() + nr() - 1) * 30 * bst))), 0, 255);
+                     b = clamp(128 + (u3 < 0.08 ? amp : (u3 > 0.92 ? -amp : Math.round((nr() + nr() - 1) * 30 * bst))), 0, 255);
                   } else {
                      const u = nr();
-                     if (u < 0.08) r = g = b = 255;
-                     else if (u > 0.92) r = g = b = 0;
-                     else { const dev = Math.round((nr() + nr() - 1) * 35); r = g = b = clamp(128 + dev, 0, 255); }
+                     const dev = u < 0.08 ? amp : (u > 0.92 ? -amp : Math.round((nr() + nr() - 1) * 30 * bst));
+                     r = g = b = clamp(128 + dev, 0, 255);
                   }
                }
             } else if (isCoarse) {
                if (bm === "screen") {
-                  if (isChroma) { r = Math.round(Math.pow(nr(), 0.6) * 230); g = Math.round(Math.pow(nr(), 0.6) * 230); b = Math.round(Math.pow(nr(), 0.6) * 230); }
-                  else { const v = Math.round(Math.pow(nr(), 0.6) * 230); r = g = b = v; }
+                  const amp = Math.min(240, Math.round(180 * bst));
+                  if (isChroma) { r = Math.round(Math.pow(nr(), 0.6) * amp); g = Math.round(Math.pow(nr(), 0.6) * amp); b = Math.round(Math.pow(nr(), 0.6) * amp); }
+                  else { const v = Math.round(Math.pow(nr(), 0.6) * amp); r = g = b = v; }
                } else if (bm === "multiply") {
-                  if (isChroma) { r = Math.round(255 - Math.pow(nr(), 0.6) * 230); g = Math.round(255 - Math.pow(nr(), 0.6) * 230); b = Math.round(255 - Math.pow(nr(), 0.6) * 230); }
-                  else { const v = Math.round(255 - Math.pow(nr(), 0.6) * 230); r = g = b = v; }
+                  const amp = Math.min(240, Math.round(180 * bst));
+                  if (isChroma) { r = clamp(255 - Math.round(Math.pow(nr(), 0.6) * amp), 0, 255); g = clamp(255 - Math.round(Math.pow(nr(), 0.6) * amp), 0, 255); b = clamp(255 - Math.round(Math.pow(nr(), 0.6) * amp), 0, 255); }
+                  else { const v = clamp(255 - Math.round(Math.pow(nr(), 0.6) * amp), 0, 255); r = g = b = v; }
                } else {
+                  const amp = Math.min(125, Math.round(85 * bst));
                   if (isChroma) {
-                     r = clamp(Math.round(128 + (nr() < 0.5 ? -1 : 1) * Math.pow(nr(), 0.55) * 126), 0, 255);
-                     g = clamp(Math.round(128 + (nr() < 0.5 ? -1 : 1) * Math.pow(nr(), 0.55) * 126), 0, 255);
-                     b = clamp(Math.round(128 + (nr() < 0.5 ? -1 : 1) * Math.pow(nr(), 0.55) * 126), 0, 255);
+                     r = clamp(128 + Math.round((nr() < 0.5 ? -1 : 1) * Math.pow(nr(), 0.55) * amp), 0, 255);
+                     g = clamp(128 + Math.round((nr() < 0.5 ? -1 : 1) * Math.pow(nr(), 0.55) * amp), 0, 255);
+                     b = clamp(128 + Math.round((nr() < 0.5 ? -1 : 1) * Math.pow(nr(), 0.55) * amp), 0, 255);
                   } else {
-                     const dev = Math.round((nr() < 0.5 ? -1 : 1) * Math.pow(nr(), 0.55) * 126);
+                     const dev = Math.round((nr() < 0.5 ? -1 : 1) * Math.pow(nr(), 0.55) * amp);
                      r = g = b = clamp(128 + dev, 0, 255);
                   }
                }
             } else if (isUniform) {
                if (bm === "screen") {
-                  if (isChroma) { r = (nr() * 235) | 0; g = (nr() * 235) | 0; b = (nr() * 235) | 0; }
-                  else { r = g = b = (nr() * 235) | 0; }
+                  const amp = Math.min(240, Math.round(190 * bst));
+                  if (isChroma) { r = (nr() * amp) | 0; g = (nr() * amp) | 0; b = (nr() * amp) | 0; }
+                  else { r = g = b = (nr() * amp) | 0; }
                } else if (bm === "multiply") {
-                  if (isChroma) { r = (255 - nr() * 235) | 0; g = (255 - nr() * 235) | 0; b = (255 - nr() * 235) | 0; }
-                  else { r = g = b = (255 - nr() * 235) | 0; }
+                  const amp = Math.min(240, Math.round(190 * bst));
+                  if (isChroma) { r = clamp(255 - ((nr() * amp) | 0), 0, 255); g = clamp(255 - ((nr() * amp) | 0), 0, 255); b = clamp(255 - ((nr() * amp) | 0), 0, 255); }
+                  else { r = g = b = clamp(255 - ((nr() * amp) | 0), 0, 255); }
                } else {
-                  if (isChroma) { r = (nr() * 255) | 0; g = (nr() * 255) | 0; b = (nr() * 255) | 0; }
-                  else { r = g = b = (nr() * 255) | 0; }
+                  const amp = Math.min(125, Math.round(75 * bst));
+                  if (isChroma) {
+                     r = clamp(128 + Math.round((nr() - 0.5) * 2 * amp), 0, 255);
+                     g = clamp(128 + Math.round((nr() - 0.5) * 2 * amp), 0, 255);
+                     b = clamp(128 + Math.round((nr() - 0.5) * 2 * amp), 0, 255);
+                  } else {
+                     const dev = Math.round((nr() - 0.5) * 2 * amp);
+                     r = g = b = clamp(128 + dev, 0, 255);
+                  }
                }
             } else {
                if (bm === "screen") {
+                  const amp = Math.min(220, Math.round(140 * bst));
                   if (isChroma) {
-                     r = clamp(Math.round(Math.abs(nr() + nr() + nr() - 1.5) / 0.866 * 145), 0, 255);
-                     g = clamp(Math.round(Math.abs(nr() + nr() + nr() - 1.5) / 0.866 * 145), 0, 255);
-                     b = clamp(Math.round(Math.abs(nr() + nr() + nr() - 1.5) / 0.866 * 145), 0, 255);
-                  } else { r = g = b = clamp(Math.round(Math.abs(nr() + nr() + nr() - 1.5) / 0.866 * 145), 0, 255); }
+                     r = clamp(Math.round(Math.abs(nr() + nr() + nr() - 1.5) / 0.866 * amp), 0, 255);
+                     g = clamp(Math.round(Math.abs(nr() + nr() + nr() - 1.5) / 0.866 * amp), 0, 255);
+                     b = clamp(Math.round(Math.abs(nr() + nr() + nr() - 1.5) / 0.866 * amp), 0, 255);
+                  } else { r = g = b = clamp(Math.round(Math.abs(nr() + nr() + nr() - 1.5) / 0.866 * amp), 0, 255); }
                } else if (bm === "multiply") {
+                  const amp = Math.min(220, Math.round(140 * bst));
                   if (isChroma) {
-                     r = clamp(Math.round(255 - Math.abs(nr() + nr() + nr() - 1.5) / 0.866 * 145), 0, 255);
-                     g = clamp(Math.round(255 - Math.abs(nr() + nr() + nr() - 1.5) / 0.866 * 145), 0, 255);
-                     b = clamp(Math.round(255 - Math.abs(nr() + nr() + nr() - 1.5) / 0.866 * 145), 0, 255);
-                  } else { r = g = b = clamp(Math.round(255 - Math.abs(nr() + nr() + nr() - 1.5) / 0.866 * 145), 0, 255); }
+                     r = clamp(255 - Math.round(Math.abs(nr() + nr() + nr() - 1.5) / 0.866 * amp), 0, 255);
+                     g = clamp(255 - Math.round(Math.abs(nr() + nr() + nr() - 1.5) / 0.866 * amp), 0, 255);
+                     b = clamp(255 - Math.round(Math.abs(nr() + nr() + nr() - 1.5) / 0.866 * amp), 0, 255);
+                  } else { r = g = b = clamp(255 - Math.round(Math.abs(nr() + nr() + nr() - 1.5) / 0.866 * amp), 0, 255); }
                } else {
+                  const amp = Math.min(125, Math.round(62 * bst));
                   if (isChroma) {
-                     r = clamp(Math.round(128 + (nr() + nr() + nr() - 1.5) / 0.866 * 90), 0, 255);
-                     g = clamp(Math.round(128 + (nr() + nr() + nr() - 1.5) / 0.866 * 90), 0, 255);
-                     b = clamp(Math.round(128 + (nr() + nr() + nr() - 1.5) / 0.866 * 90), 0, 255);
+                     r = clamp(128 + Math.round((nr() + nr() + nr() - 1.5) / 0.866 * amp), 0, 255);
+                     g = clamp(128 + Math.round((nr() + nr() + nr() - 1.5) / 0.866 * amp), 0, 255);
+                     b = clamp(128 + Math.round((nr() + nr() + nr() - 1.5) / 0.866 * amp), 0, 255);
                   } else {
-                     const dev = Math.round((nr() + nr() + nr() - 1.5) / 0.866 * 90);
+                     const dev = Math.round((nr() + nr() + nr() - 1.5) / 0.866 * amp);
                      r = g = b = clamp(128 + dev, 0, 255);
                   }
                }
@@ -2692,7 +2711,7 @@
             buf[i] = (255 << 24) | (b << 16) | (g << 8) | r;
          }
          tc.putImageData(id, 0, 0);
-         if (_noiseCache.size > 24) { const first = _noiseCache.keys().next().value; _noiseCache.delete(first); }
+         if (_noiseCache.size > 36) { const first = _noiseCache.keys().next().value; _noiseCache.delete(first); }
          _noiseCache.set(key, cv);
          return cv;
       }
@@ -2858,61 +2877,23 @@
             const bm = o.nBlend || TX[2] || "overlay";
             const userScale = (o.nSize || 100) / 100;
             const baseS = Math.max(1.8, m / 650);
-            const s = Math.max(1.0, baseS * TX[0] * userScale);
+            const clumping = nz > 100 ? 1.0 + Math.log10(1 + (nz - 100) / 300) * 0.25 : 1.0;
+            const s = Math.max(1.0, baseS * TX[0] * userScale * clumping);
+            const alpha = nz <= 100 ? (nz / 100) * 0.40 : Math.min(0.80, 0.40 + ((nz - 100) / 900) * 0.40);
+            const boost = nz <= 100 ? 1.0 : Math.min(1.85, 1.0 + ((nz - 100) / 900) * 0.85);
+
             x.save();
             x.imageSmoothingEnabled = false;
             try { x.webkitImageSmoothingEnabled = false; x.mozImageSmoothingEnabled = false } catch (e) { }
             try { x.globalCompositeOperation = bm } catch (e) { x.globalCompositeOperation = "overlay" }
-
-            // Pass 1: Primary Film Grain (0% - 100%+)
-            const a1 = Math.min(1.0, (nz / 100) * 0.85);
-            x.save();
             x.scale(s, s);
-            x.globalAlpha = a1;
-            const t1 = getNoiseTile(o.seed, o.nDist, o.nColor, bm);
-            const pat1 = x.createPattern(t1, "repeat");
-            if (pat1) { x.fillStyle = pat1; x.fillRect(0, 0, Math.ceil(w / s) + 1, Math.ceil(h / s) + 1) }
-            x.restore();
-
-            // Pass 2: Secondary Micro-Crystalline Grit (active for nz > 100%, scales up to 400%)
-            if (nz > 100) {
-               const a2 = Math.min(0.92, (nz - 100) / 300 * 0.85);
-               const s2 = Math.max(1.0, s * 0.68);
-               x.save();
-               x.scale(s2, s2);
-               x.globalAlpha = a2;
-               const t2 = getNoiseTile(o.seed + 101, o.nDist === "salt" ? "coarse" : o.nDist, o.nColor, bm);
-               const pat2 = x.createPattern(t2, "repeat");
-               if (pat2) { x.fillStyle = pat2; x.fillRect(0, 0, Math.ceil(w / s2) + 1, Math.ceil(h / s2) + 1) }
-               x.restore();
+            x.globalAlpha = alpha;
+            const t = getNoiseTile(o.seed, o.nDist, o.nColor, bm, boost);
+            const pat = x.createPattern(t, "repeat");
+            if (pat) {
+               x.fillStyle = pat;
+               x.fillRect(0, 0, Math.ceil(w / s) + 1, Math.ceil(h / s) + 1);
             }
-
-            // Pass 3: Macro-Grain & Heavy Analog Clumping (active for nz > 300%, scales up to 700%)
-            if (nz > 300) {
-               const a3 = Math.min(0.92, (nz - 300) / 400 * 0.85);
-               const s3 = Math.max(1.0, s * 1.85);
-               x.save();
-               x.scale(s3, s3);
-               x.globalAlpha = a3;
-               const t3 = getNoiseTile(o.seed + 202, "coarse", o.nColor, bm);
-               const pat3 = x.createPattern(t3, "repeat");
-               if (pat3) { x.fillStyle = pat3; x.fillRect(0, 0, Math.ceil(w / s3) + 1, Math.ceil(h / s3) + 1) }
-               x.restore();
-            }
-
-            // Pass 4: Extreme Ultra-Grit Disintegration (active for nz > 600%, scales up to 1000%)
-            if (nz > 600) {
-               const a4 = Math.min(0.95, (nz - 600) / 400 * 0.9);
-               const s4 = Math.max(1.0, s * 1.25);
-               x.save();
-               x.scale(s4, s4);
-               x.globalAlpha = a4;
-               const t4 = getNoiseTile(o.seed + 303, o.nDist === "gaussian" ? "salt" : o.nDist, o.nColor, bm);
-               const pat4 = x.createPattern(t4, "repeat");
-               if (pat4) { x.fillStyle = pat4; x.fillRect(0, 0, Math.ceil(w / s4) + 1, Math.ceil(h / s4) + 1) }
-               x.restore();
-            }
-
             x.restore();
          }
          if (tx === 3) { x.fillStyle = "rgba(255,255,255,.55)"; for (let i = 0; i < m * .6; i++) { const d = m * .0012 * (1 + r() * 3); x.fillRect(w * r(), h * r(), d, d) } }
