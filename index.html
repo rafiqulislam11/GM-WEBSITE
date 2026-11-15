@@ -2341,8 +2341,34 @@
                      </svg>Atmosphere &amp; Surface</div>
                   <label class="fld">Lighting<select id="light"></select></label>
                   <label class="fld">Texture<select id="tex"></select></label>
-                  <label class="fld"><span class="f-row">Film Grain<b class="val" id="v-noise">35</b></span><input
+               </div>
+               <div class="grp">
+                  <div class="grp-head"><svg class="ic" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="1.5" />
+                        <path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1M5.6 18.4l2.1-2.1m8.6-8.6 2.1-2.1" />
+                     </svg>Add Noise &amp; Grain Engine</div>
+                  <label class="fld"><span class="f-row">Noise Amount<b class="val" id="v-noise">35</b></span><input
                         id="noise" type="range" min="0" max="100" value="35"></label>
+                  <label class="fld"><span class="f-row">Grain Size / Scale<b class="val" id="v-nSize">100%</b></span><input
+                        id="nSize" type="range" min="50" max="250" value="100" step="5"></label>
+                  <div class="row">
+                     <label class="fld">Distribution<select id="nDist">
+                           <option value="gaussian" selected>Gaussian (Film)</option>
+                           <option value="uniform">Uniform (Digital)</option>
+                           <option value="coarse">Analog Grit</option>
+                           <option value="salt">Salt &amp; Pepper</option>
+                        </select></label>
+                     <label class="fld">Color Mode<select id="nColor">
+                           <option value="mono" selected>Monochrome</option>
+                           <option value="chroma">Chromatic RGB</option>
+                        </select></label>
+                  </div>
+                  <label class="fld">Blend Mode<select id="nBlend">
+                        <option value="overlay" selected>Overlay (Balanced)</option>
+                        <option value="soft-light">Soft Light (Subtle)</option>
+                        <option value="screen">Screen (Luminous)</option>
+                        <option value="multiply">Multiply (Dark shadows)</option>
+                     </select></label>
                </div>
                <div class="grp">
                   <div class="grp-head"><svg class="ic" viewBox="0 0 24 24">
@@ -2572,18 +2598,45 @@
          out.sort((p, q) => q[0] - p[0]); return out.map(v => v[1])
       }
 
-      let _lastNoiseSeed = -1, _noiseTile = null;
-      function getNoiseTile(seed) {
-         if (_noiseTile && _lastNoiseSeed === seed) return _noiseTile;
+      let _lastNoiseKey = "", _noiseTile = null;
+      function getNoiseTile(seed, dist, colorMode) {
+         const d = dist || "gaussian", cm = colorMode || "mono", key = seed + "_" + d + "_" + cm;
+         if (_noiseTile && _lastNoiseKey === key) return _noiseTile;
          const ts = 256;
          if (!_noiseTile) { _noiseTile = document.createElement("canvas"); _noiseTile.width = _noiseTile.height = ts }
          const tc = _noiseTile.getContext("2d"), id = tc.createImageData(ts, ts), buf = new Uint32Array(id.data.buffer), nr = rng(seed + 3);
+         const isChroma = cm === "chroma", isCoarse = d === "coarse", isSalt = d === "salt", isUniform = d === "uniform";
          for (let i = 0; i < buf.length; i++) {
-            const v = ((nr() + nr()) * 127.5) | 0;
-            buf[i] = (255 << 24) | (v << 16) | (v << 8) | v;
+            let r, g, b;
+            if (isSalt) {
+               const u = nr();
+               if (u < .06) r = g = b = 255;
+               else if (u > .94) r = g = b = 0;
+               else r = g = b = 128;
+            } else if (isCoarse) {
+               const u = (nr() + nr() + nr()) / 3, v = Math.pow(u, 1.35) * 255 | 0;
+               if (isChroma) {
+                  r = v;
+                  g = (Math.pow((nr() + nr() + nr()) / 3, 1.35) * 255) | 0;
+                  b = (Math.pow((nr() + nr() + nr()) / 3, 1.35) * 255) | 0;
+               } else { r = g = b = v; }
+            } else if (isUniform) {
+               if (isChroma) {
+                  r = (nr() * 255) | 0;
+                  g = (nr() * 255) | 0;
+                  b = (nr() * 255) | 0;
+               } else { r = g = b = (nr() * 255) | 0; }
+            } else {
+               if (isChroma) {
+                  r = ((nr() + nr()) * 127.5) | 0;
+                  g = ((nr() + nr()) * 127.5) | 0;
+                  b = ((nr() + nr()) * 127.5) | 0;
+               } else { r = g = b = ((nr() + nr()) * 127.5) | 0; }
+            }
+            buf[i] = (255 << 24) | (b << 16) | (g << 8) | r;
          }
          tc.putImageData(id, 0, 0);
-         _lastNoiseSeed = seed;
+         _lastNoiseKey = key;
          return _noiseTile;
       }
 
@@ -2744,8 +2797,8 @@
          vig(fx === "shadow" ? .38 : .14);
          const tx = o.tex >= 0 ? o.tex : (st.tex >= 0 ? st.tex : -1), TX = [[1, 1], [2.2, .72], [2.6, 1, "multiply"], [1.2, .8], [1.4, 1], [.8, 1], [1.6, .9], [2, .6], [.6, 1], [1.8, .9]][tx] || [1, 1], nz = (fx === "grain" ? Math.max(o.noise, 55) : o.noise) * TX[1] + (st.z || 0);
          if (nz > 0) {
-            const t = getNoiseTile(o.seed), s = Math.max(1, m / 2400) * TX[0];
-            x.save(); x.scale(s, s); x.globalAlpha = clamp(nz, 0, 100) / 100 * .42; x.globalCompositeOperation = TX[2] || "overlay";
+            const t = getNoiseTile(o.seed, o.nDist, o.nColor), userScale = (o.nSize || 100) / 100, s = Math.max(1, m / 2400) * TX[0] * userScale;
+            x.save(); x.scale(s, s); x.globalAlpha = clamp(nz, 0, 100) / 100 * .45; x.globalCompositeOperation = o.nBlend || TX[2] || "overlay";
             const pat = x.createPattern(t, "repeat"); if (pat) { x.fillStyle = pat; x.fillRect(0, 0, w / s, h / s) } x.restore()
          }
          if (tx === 3) { x.fillStyle = "rgba(255,255,255,.55)"; for (let i = 0; i < m * .6; i++) { const d = m * .0012 * (1 + r() * 3); x.fillRect(w * r(), h * r(), d, d) } }
@@ -2832,14 +2885,14 @@
          if (a.pat > 0) advPattern(x, w, h, m, a)
       }
       { const _d = draw; draw = function (cv, w, h, st, o) { const p = _d(cv, w, h, st, o), a = o && o.adv; if (a) try { advPost(cv, w, h, a, o.seed) } catch (e) { } return p } }
-      const galOpts = () => ({ seed: 20261112, col: $("#col").value, hex: $("#hex").value, stops: +$("#stops").value, sat: 100, con: 100, noise: 18, harm: "Auto", comp: -1, light: -1, tex: -1 });
+      const galOpts = () => ({ seed: 20261112, col: $("#col").value, hex: $("#hex").value, stops: +$("#stops").value, sat: 100, con: 100, noise: 18, nSize: 100, nDist: "gaussian", nColor: "mono", nBlend: "overlay", harm: "Auto", comp: -1, light: -1, tex: -1 });
       try { $("#styleSearch").placeholder = "Search " + DES.length + " styles, concepts, engines..." } catch (e) { }
-      const KEYS = ["style", "comp", "col", "harm", "hex", "stops", "light", "tex", "noise", "sat", "con", "ratio", "cw", "ch", "size", "ppi", "minmb", "maxmb", "prefix", "seed", "count", "bfmt", ...ADVK];
+      const KEYS = ["style", "comp", "col", "harm", "hex", "stops", "light", "tex", "noise", "nSize", "nDist", "nColor", "nBlend", "sat", "con", "ratio", "cw", "ch", "size", "ppi", "minmb", "maxmb", "prefix", "seed", "count", "bfmt", ...ADVK];
       try { const sv = JSON.parse(localStorage.getItem("ri-gs") || "{}"); KEYS.forEach(k => { const el = $("#" + k); if (!el || sv[k] == null) return; if (el.tagName === "SELECT") { if ([...el.options].some(o => o.value === String(sv[k]))) el.value = sv[k] } else el.value = sv[k] }) } catch (e) { }
       const save = () => { try { localStorage.setItem("ri-gs", JSON.stringify(Object.fromEntries(KEYS.map(k => [k, $("#" + k).value])))) } catch (e) { } };
       let _saveTimer = null;
       const debouncedSave = () => { clearTimeout(_saveTimer); _saveTimer = setTimeout(save, 300) };
-      const opts = s => ({ seed: s || Math.max(1, +$("#seed").value || 1), col: $("#col").value, hex: $("#hex").value, stops: +$("#stops").value, sat: +$("#sat").value, con: +$("#con").value, noise: +$("#noise").value, harm: HARM[+$("#harm").value] || "Auto", comp: +$("#comp").value, light: +$("#light").value, tex: +$("#tex").value, adv: advVals() });
+      const opts = s => ({ seed: s || Math.max(1, +$("#seed").value || 1), col: $("#col").value, hex: $("#hex").value, stops: +$("#stops").value, sat: +$("#sat").value, con: +$("#con").value, noise: +$("#noise").value, nSize: +($("#nSize")?.value || 100), nDist: $("#nDist")?.value || "gaussian", nColor: $("#nColor")?.value || "mono", nBlend: $("#nBlend")?.value || "overlay", harm: HARM[+$("#harm").value] || "Auto", comp: +$("#comp").value, light: +$("#light").value, tex: +$("#tex").value, adv: advVals() });
       function curStyle(o) { const v = $("#style").value; if (v === "random" && /^n:/.test(o.col)) { const c = COLL[+o.col.slice(2)]; if (c) return { n: c[1], c: c[0], bg: c[3], shape: c[4], fx: c[5], col: "Vibrant", z: c[6] } } return v === "random" ? DES[Math.floor(rng(o.seed)() * DES.length)] : (DES[+v] || STYLES[0]) }
       const gcd = (a, b) => b ? gcd(b, a % b) : a;
       const ratioTxt = (w, h) => { const g = gcd(w, h), rw = Math.round(w / g), rh = Math.round(h / g); return rw <= 24 && rh <= 24 ? rw + ":" + rh : (w / h).toFixed(2) + ":1" };
@@ -3033,7 +3086,7 @@
          sg.addEventListener("touchcancel", endTouch);
       })();
 
-      const sync = () => { ["stops", "noise", "sat", "con", ...ADVK].forEach(k => { const el = $("#" + k); $("#v-" + k).textContent = el.value; const pct = ((+el.value - +el.min) / (+el.max - +el.min) * 100).toFixed(1) + "%"; el.style?.setProperty?.("--pct", pct) }); $("#custom").hidden = $("#ratio").value !== "-1" };
+      const sync = () => { ["stops", "noise", "nSize", "sat", "con", ...ADVK].forEach(k => { const el = $("#" + k); if (!el) return; const valEl = $("#v-" + k); if (valEl) valEl.textContent = k === "nSize" ? el.value + "%" : el.value; const pct = ((+el.value - +el.min) / (+el.max - +el.min) * 100).toFixed(1) + "%"; el.style?.setProperty?.("--pct", pct) }); $("#custom").hidden = $("#ratio").value !== "-1" };
       let prevRatio = $("#ratio").value;
       $("#ratio").addEventListener("change", () => {
          const cur = $("#ratio").value;
@@ -3268,6 +3321,10 @@
          $("#col").value = "auto";
          ["comp", "harm", "light", "tex"].forEach(id => $("#" + id).value = "-1");
          $("#hex").value = ""; $("#stops").value = 4; $("#noise").value = 35; $("#sat").value = 100; $("#con").value = 100;
+         if ($("#nSize")) $("#nSize").value = "100";
+         if ($("#nDist")) $("#nDist").value = "gaussian";
+         if ($("#nColor")) $("#nColor").value = "mono";
+         if ($("#nBlend")) $("#nBlend").value = "overlay";
          $("#ratio").value = "0"; $("#size").value = "0"; $("#ppi").value = "300";
          if ($("#minmb")) $("#minmb").value = "4"; if ($("#maxmb")) $("#maxmb").value = "20";
          $("#prefix").value = ""; $("#seed").value = 20261112;
